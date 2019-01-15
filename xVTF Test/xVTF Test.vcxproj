@@ -127,34 +127,42 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static Library|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)_obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>xVTFTest</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)_obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>xVTFTest</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)_obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>xVTFTest</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static Library|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)_obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>xVTFTest</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static Library|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)_obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>xVTFTest</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)_obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>xVTFTest</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)_obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>xVTFTest</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static Library|x64'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)_obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <TargetName>xVTFTest</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Static Library|Win32'">
     <ClCompile>

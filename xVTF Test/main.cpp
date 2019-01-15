@@ -3,9 +3,37 @@
 #include <string>
 #include "xVTF/xVTF.h"
 
+enum Mode
+{
+	FILE_MODE,
+	FILE_LIST_MODE
+};
+
 int main(unsigned int argc, char** argv)
 {
-	std::ifstream is(*(argv + 1));
+	if (argc == 1)
+	{
+		std::cout
+			<< "Usage: xVTFTest [/L <list>] tex.vtf tex2.vtf ...\n"
+			<< "Prints various information about a VTF (Valve Texture Format) file.\n\n"
+			
+			<< "    No Args    : displays this help information.\n"
+			<< "    /L         : batch process all files separated by a newline in <list>.\n";
+		return 1;
+	}
+
+	Mode mode;
+	std::ifstream is;
+	char* flag = *(argv + 1);
+	/* File List Mode */
+	if (strcmp(flag, "/L") == 0)
+	{
+		mode = FILE_LIST_MODE;
+		is.open((*(argv + 2)));
+	}
+	else
+		mode = FILE_MODE;
+
 	std::string CurrentFile;
 	unsigned int i = 0;
 
@@ -75,152 +103,174 @@ int main(unsigned int argc, char** argv)
 	unsigned int BORDER				   = 0;
 	unsigned int FlagZero = 0;
 
-	while(std::getline(is, CurrentFile))
+	do
 	{
-		auto File = xvtf::IO::VTFReader::Open(CurrentFile.c_str(), true);
-		auto Header = File->GetHeader();
-		auto Version = Header->version;
-		auto ImageForm = Header->imageFormat;
-		auto Flags = Header->flags;
-
-		if (Version[0] != 7)
+		if (mode == FILE_LIST_MODE)
 		{
-			VerUnknown++;
+			if (!std::getline(is, CurrentFile))
+				break;
 		}
-		else if (Version[1] == 0 && Version[0] == 7)
-			VerSevZero++;
-		else if (Version[1] == 1 && Version[0] == 7)
-			VerSevOne++;
-		else if (Version[1] == 2 && Version[0] == 7)
-			VerSevTwo++;
-		else if (Version[1] == 3 && Version[0] == 7)
-			VerSevThree++;
-		else if (Version[1] == 4 && Version[0] == 7)
-			VerSevFour++;
-		else if (Version[1] == 5 && Version[0] == 7)
-			VerSevFive++;
-		else
+		else if (mode == FILE_MODE)
 		{
-			VerUnknown++;
-			std::cout << "Abnormal Version in '" << CurrentFile << "': " << Version[0] << '.' << Version[1] << '\n';
+			if (!(i < argc - 1))
+				break;
+			else
+				CurrentFile = *(argv + i + 1);
 		}
 
-			using namespace xvtf::ImageFile::VTF;
+		try
+		{
+			auto File = xvtf::IO::VTFReader::Open(CurrentFile.c_str(), true);
+			auto Header = File->GetHeader();
+			auto Version = Header->version;
+			auto ImageForm = Header->imageFormat;
+			auto Flags = Header->flags;
 
-			if (ImageForm == ImageFormat::A8)
-				A8++;
-			else if (ImageForm == ImageFormat::ABGR8888)
-				ABGR8888++;
-			else if (ImageForm == ImageFormat::ARGB8888)
-				ARGB8888++;
-			else if (ImageForm == ImageFormat::BGR565)
-				BGR565++;
-			else if (ImageForm == ImageFormat::BGR888)
-				BGR888++;
-			else if (ImageForm == ImageFormat::BGR888_BLUESCREEN)
-				BGR888_BLUESCREEN++;
-			else if (ImageForm == ImageFormat::BGRA4444)
-				BGRA4444++;
-			else if (ImageForm == ImageFormat::BGRA5551)
-				BGRA5551++;
-			else if (ImageForm == ImageFormat::BGRA8888)
-				BGRA8888++;
-			else if (ImageForm == ImageFormat::BGRX5551)
-				BGRX5551++;
-			else if (ImageForm == ImageFormat::BGRX8888)
-				BGRX8888++;
-			else if (ImageForm == ImageFormat::DXT1)
-				DXT1++;
-			else if (ImageForm == ImageFormat::DXT1_ONEBITALPHA)
-				DXT1_ONEBITALPHA++;
-			else if (ImageForm == ImageFormat::DXT3)
-				DXT3++;
-			else if (ImageForm == ImageFormat::DXT5)
-				DXT5++;
-			else if (ImageForm == ImageFormat::I8)
-				I8++;
-			else if (ImageForm == ImageFormat::IA88)
-				IA88++;
-			else if (ImageForm == ImageFormat::NONE)
-				NONE++;
-			else if (ImageForm == ImageFormat::P8)
-				P8++;
-			else if (ImageForm == ImageFormat::RGB565)
-				RGB565++;
-			else if (ImageForm == ImageFormat::RGB888)
-				RGB888++;
-			else if (ImageForm == ImageFormat::RGB888_BLUESCREEN)
-				RGB888_BLUESCREEN++;
-			else if (ImageForm == ImageFormat::RGBA16161616)
-				RGBA16161616++;
-			else if (ImageForm == ImageFormat::RGBA16161616F)
-				RGBA16161616F++;
-			else if (ImageForm == ImageFormat::RGBA8888)
-				RGBA8888++;
-			else if (ImageForm == ImageFormat::UV88)
-				UV88++;
-			else if (ImageForm == ImageFormat::UVLX8888)
-				UVLX8888++;
-			else if (ImageForm == ImageFormat::UVWQ8888)
-				UVWQ8888++;
+			if (Version[0] != 7)
+			{
+				VerUnknown++;
+			}
+			else if (Version[1] == 0 && Version[0] == 7)
+				VerSevZero++;
+			else if (Version[1] == 1 && Version[0] == 7)
+				VerSevOne++;
+			else if (Version[1] == 2 && Version[0] == 7)
+				VerSevTwo++;
+			else if (Version[1] == 3 && Version[0] == 7)
+				VerSevThree++;
+			else if (Version[1] == 4 && Version[0] == 7)
+				VerSevFour++;
+			else if (Version[1] == 5 && Version[0] == 7)
+				VerSevFive++;
+			else
+			{
+				VerUnknown++;
+				std::cout << "Abnormal Version in '" << CurrentFile << "': " << Version[0] << '.' << Version[1] << '\n';
+			}
 
-			if (static_cast<unsigned int>(Flags) == 0)
-				FlagZero++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::POINTSAMPLING)) != 0)
-				POINTSAMPLING++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::TRILINEARSAMPLING)) != 0)
-				TRILINEARSAMPLING++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::CLAMPS)) != 0)
-				CLAMPS++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::CLAMPT)) != 0)
-				CLAMPT++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::ANISOTROPICSAMPLING)) != 0)
-				ANISOTROPICSAMPLING++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::HINTDXT5)) != 0)
-				HINTDXT5++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NOCOMPRESS)) != 0)
-				NOCOMPRESS++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NORMALMAP)) != 0)
-				NORMALMAP++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NOMIPMAPS)) != 0)
-				NOMIPMAPS++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NOLOD)) != 0)
-				NOLOD++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NOMINIMUMMIPMAP)) != 0)
-				NOMINIMUMMIPMAP++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::PROCEDURAL)) != 0)
-				PROCEDURAL++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::ONEBITALPHA)) != 0)
-				ONEBITALPHA++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::EIGHTBITALHPA)) != 0)
-				EIGHTBITALHPA++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::ENVIRONMENTMAP)) != 0)
-				ENVIRONMENTMAP++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::RENDERTARGET)) != 0)
-				RENDERTARGET++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::DEPTHRENDERTARGET)) != 0)
-				DEPTHRENDERTARGET++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NODEBUGOVERRIDE)) != 0)
-				NODEBUGOVERRIDE++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::SINGLECOPY)) != 0)
-				SINGLECOPY++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::PRESRGB)) != 0)
-				PRESRGB++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NODEPTHBUFFER)) != 0)
-				NODEPTHBUFFER++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NICEFILTERED)) != 0)
-				NICEFILTERED++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::CLAMPU)) != 0)
-				CLAMPU++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::VERTEXTEXTURE)) != 0)
-				VERTEXTEXTURE++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::SSBUMP)) != 0)
-				SSBUMP++;
-			if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::BORDER)) != 0)
-				BORDER++;
+				using namespace xvtf::ImageFile::VTF;
+
+				if (ImageForm == ImageFormat::A8)
+					A8++;
+				else if (ImageForm == ImageFormat::ABGR8888)
+					ABGR8888++;
+				else if (ImageForm == ImageFormat::ARGB8888)
+					ARGB8888++;
+				else if (ImageForm == ImageFormat::BGR565)
+					BGR565++;
+				else if (ImageForm == ImageFormat::BGR888)
+					BGR888++;
+				else if (ImageForm == ImageFormat::BGR888_BLUESCREEN)
+					BGR888_BLUESCREEN++;
+				else if (ImageForm == ImageFormat::BGRA4444)
+					BGRA4444++;
+				else if (ImageForm == ImageFormat::BGRA5551)
+					BGRA5551++;
+				else if (ImageForm == ImageFormat::BGRA8888)
+					BGRA8888++;
+				else if (ImageForm == ImageFormat::BGRX5551)
+					BGRX5551++;
+				else if (ImageForm == ImageFormat::BGRX8888)
+					BGRX8888++;
+				else if (ImageForm == ImageFormat::DXT1)
+					DXT1++;
+				else if (ImageForm == ImageFormat::DXT1_ONEBITALPHA)
+					DXT1_ONEBITALPHA++;
+				else if (ImageForm == ImageFormat::DXT3)
+					DXT3++;
+				else if (ImageForm == ImageFormat::DXT5)
+					DXT5++;
+				else if (ImageForm == ImageFormat::I8)
+					I8++;
+				else if (ImageForm == ImageFormat::IA88)
+					IA88++;
+				else if (ImageForm == ImageFormat::NONE)
+					NONE++;
+				else if (ImageForm == ImageFormat::P8)
+					P8++;
+				else if (ImageForm == ImageFormat::RGB565)
+					RGB565++;
+				else if (ImageForm == ImageFormat::RGB888)
+					RGB888++;
+				else if (ImageForm == ImageFormat::RGB888_BLUESCREEN)
+					RGB888_BLUESCREEN++;
+				else if (ImageForm == ImageFormat::RGBA16161616)
+					RGBA16161616++;
+				else if (ImageForm == ImageFormat::RGBA16161616F)
+					RGBA16161616F++;
+				else if (ImageForm == ImageFormat::RGBA8888)
+					RGBA8888++;
+				else if (ImageForm == ImageFormat::UV88)
+					UV88++;
+				else if (ImageForm == ImageFormat::UVLX8888)
+					UVLX8888++;
+				else if (ImageForm == ImageFormat::UVWQ8888)
+					UVWQ8888++;
+
+				if (static_cast<unsigned int>(Flags) == 0)
+					FlagZero++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::POINTSAMPLING)) != 0)
+					POINTSAMPLING++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::TRILINEARSAMPLING)) != 0)
+					TRILINEARSAMPLING++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::CLAMPS)) != 0)
+					CLAMPS++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::CLAMPT)) != 0)
+					CLAMPT++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::ANISOTROPICSAMPLING)) != 0)
+					ANISOTROPICSAMPLING++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::HINTDXT5)) != 0)
+					HINTDXT5++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NOCOMPRESS)) != 0)
+					NOCOMPRESS++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NORMALMAP)) != 0)
+					NORMALMAP++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NOMIPMAPS)) != 0)
+					NOMIPMAPS++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NOLOD)) != 0)
+					NOLOD++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NOMINIMUMMIPMAP)) != 0)
+					NOMINIMUMMIPMAP++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::PROCEDURAL)) != 0)
+					PROCEDURAL++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::ONEBITALPHA)) != 0)
+					ONEBITALPHA++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::EIGHTBITALHPA)) != 0)
+					EIGHTBITALHPA++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::ENVIRONMENTMAP)) != 0)
+					ENVIRONMENTMAP++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::RENDERTARGET)) != 0)
+					RENDERTARGET++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::DEPTHRENDERTARGET)) != 0)
+					DEPTHRENDERTARGET++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NODEBUGOVERRIDE)) != 0)
+					NODEBUGOVERRIDE++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::SINGLECOPY)) != 0)
+					SINGLECOPY++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::PRESRGB)) != 0)
+					PRESRGB++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NODEPTHBUFFER)) != 0)
+					NODEPTHBUFFER++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::NICEFILTERED)) != 0)
+					NICEFILTERED++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::CLAMPU)) != 0)
+					CLAMPU++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::VERTEXTEXTURE)) != 0)
+					VERTEXTEXTURE++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::SSBUMP)) != 0)
+					SSBUMP++;
+				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::BORDER)) != 0)
+					BORDER++;
+			}
+			catch (const std::exception &e)
+			{
+				std::cout << "ERROR: "  << e.what();
+				return -1;
+			}
 
 		i++;
 	}
+	while (true);
 
 	std::cout << "\nCompleted processing " << i << " files.\n"
 		<< "== Version Spread ==\n"

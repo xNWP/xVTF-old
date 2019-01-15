@@ -15,7 +15,7 @@ std::unique_ptr<XVTF_NS::ImageFile::VTFFile> XVTF_NS::IO::VTFReader::Open(const 
 	char FourCC[4] = { 0 };
 	fread(FourCC, 1, 4, File);
 
-	if (strncmp(FourCC, "VTF", 4))
+	if (strcmp(FourCC, "VTF"))
 	{
 		std::string err = "Error opening file '";
 		err += filename; err += "': Not a valid VTF file. FourCC was not VTF\\0.";
