@@ -2,8 +2,12 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="include\xVTF\xVTF.h" />
+    <ClInclude Include="include\xVTF\xExports.h" />
+    <ClInclude Include="include\xVTF\xVTFReader.h" />
+    <ClInclude Include="include\xVTF\xVTFFile.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\xVTF.cpp" />
+    <ClCompile Include="src\xVTFReader.cpp" />
+    <ClCompile Include="src\xVTFFile.cpp" />
   </ItemGroup>
 </Project>
