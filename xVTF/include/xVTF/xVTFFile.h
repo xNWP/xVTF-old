@@ -202,7 +202,6 @@ namespace XVTF_NS
 			{
 				// No Extensions
 			};
-
 		}
 
 		class VTFFile
