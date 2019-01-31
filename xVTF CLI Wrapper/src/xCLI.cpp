@@ -52,14 +52,12 @@ XVTF_NS::CLI::ImageFile::VTFFile::!VTFFile()
 	delete this->_impl;
 }
 
-unsigned int XVTF_NS::CLI::ImageFile::VTFFile::GetVersionMaj()
+array<unsigned int>^ XVTF_NS::CLI::ImageFile::VTFFile::GetVersion()
 {
-	return this->_header->version[0];
-}
-
-unsigned int XVTF_NS::CLI::ImageFile::VTFFile::GetVersionMin()
-{
-	return this->_header->version[1];
+	array<unsigned int>^ rval = gcnew array<unsigned int>(2);
+	rval[0] = this->_header->version[0];
+	rval[1] = this->_header->version[1];
+	return rval;
 }
 
 unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetWidth()
@@ -85,6 +83,15 @@ unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetNumberOfFrames()
 unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetStartFrame()
 {
 	return this->_header->startFrame;
+}
+
+array<float>^ XVTF_NS::CLI::ImageFile::VTFFile::GetReflectivity()
+{
+	array<float>^ rval = gcnew array<float>(3);
+	rval[0] = this->_header->reflectivity[0];
+	rval[1] = this->_header->reflectivity[1];
+	rval[2] = this->_header->reflectivity[2];
+	return rval;
 }
 
 float XVTF_NS::CLI::ImageFile::VTFFile::GetBumpScale()

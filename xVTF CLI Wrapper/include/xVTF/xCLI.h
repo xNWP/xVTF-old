@@ -126,13 +126,13 @@ namespace XVTF_NS
 				~VTFFile();
 				!VTFFile();
 
-				unsigned int GetVersionMaj();
-				unsigned int GetVersionMin();
+				array<unsigned int>^ GetVersion();
 				unsigned short GetWidth();
 				unsigned short GetHeight();
 				unsigned int GetFlags();
 				unsigned short GetNumberOfFrames();
 				unsigned short GetStartFrame();
+				array<float>^ GetReflectivity();
 				float GetBumpScale();
 				unsigned int GetFormat();
 				unsigned short GetNumberOfMipLevels();
