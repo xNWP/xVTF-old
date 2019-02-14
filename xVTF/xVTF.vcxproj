@@ -35,14 +35,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\xVTF\xCodecs.h" />
     <ClInclude Include="include\xVTF\xExports.h" />
     <ClInclude Include="include\xVTF\xVTF.h" />
     <ClInclude Include="include\xVTF\xVTFFile.h" />
-    <ClInclude Include="include\xVTF\xVTFReader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\xCodecs.cpp" />
     <ClCompile Include="src\xVTFFile.cpp" />
-    <ClCompile Include="src\xVTFReader.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

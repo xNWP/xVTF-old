@@ -1,8 +1,10 @@
 #ifndef XVTF_FILE_H__
 #define XVTF_FILE_H__
 
+#include "xVTF/xCodecs.h"
 #include "xVTF/xExports.h"
 
+#include <stdexcept>
 #include <memory>
 
 #define XVTF_VTF_MAX_RESOURCES	32
@@ -13,6 +15,11 @@ namespace XVTF_NS
 {
 	namespace ImageFile
 	{
+		struct Resolution
+		{
+			unsigned int Width, Height;
+		};
+
 		namespace VTF
 		{
 			//----------------------------------------------------------------------------------------------------
@@ -49,6 +56,15 @@ namespace XVTF_NS
 				RGBA16161616,
 				UVLX8888
 			};
+
+			//----------------------------------------------------------------------------------------------------
+			/// Provides the Bytes Per Pixel values for each of the ImageFormat (s).
+			//----------------------------------------------------------------------------------------------------
+			const float ImageFormatBPP[] =
+			{ 4.0f, 4.0f, 3.0f, 3.0f, 2.0f, 1.0f, 2.0f,
+			  1.0f, 1.0f, 3.0f, 3.0f, 4.0f, 4.0f, 0.5f,
+			  1.0f, 1.0f, 4.0f, 2.0f, 2.0f, 2.0f, 0.5f,
+			  2.0f, 2.0f, 4.0f, 8.0f, 8.0f, 4.0f };
 
 			//----------------------------------------------------------------------------------------------------
 			/// Various flags that a VTF image may provide
@@ -90,7 +106,8 @@ namespace XVTF_NS
 			{
 				LOW_RES_IMAGE	= 0x01,
 				HIGH_RES_IMAGE	= 0x30,
-				RESOURCE_SHEET	= 0x10
+				RESOURCE_SHEET	= 0x10,
+				CRC				= 0x02435243
 			};
 
 			/* Disable alignment packing on these structs */
@@ -120,14 +137,6 @@ namespace XVTF_NS
 			public:
 				int version[2];	// version[0].version[1]
 				int headerSize;
-			};
-
-			//----------------------------------------------------------------------------------------------------
-			/// Version 7.1 Header Extensions (Unaligned)
-			//----------------------------------------------------------------------------------------------------
-			struct VTFFileHeader_7_1_r : public VTFFileBaseHeader_r
-			{
-			public:
 				unsigned short width;
 				unsigned short height;
 				ImageFlags flags;
@@ -151,9 +160,10 @@ namespace XVTF_NS
 			//----------------------------------------------------------------------------------------------------
 			/// Version 7.2 Header Extensions (Unaligned)
 			//----------------------------------------------------------------------------------------------------
-			struct VTFFileHeader_7_2_r : public VTFFileHeader_7_1_r
+			struct VTFFileHeader_7_2_r : public VTFFileBaseHeader_r
 			{
 			public:
+				VTFFileHeader_7_2_r() : depth(1) { }
 				unsigned short depth;
 			};
 
@@ -162,6 +172,8 @@ namespace XVTF_NS
 			//----------------------------------------------------------------------------------------------------
 			struct VTFFileHeader_7_3_r : public VTFFileHeader_7_2_r
 			{
+			public:
+				VTFFileHeader_7_3_r() : numResources(0) { }
 			private:
 				char pad4[3];
 			public:
@@ -202,17 +214,33 @@ namespace XVTF_NS
 			{
 				// No Extensions
 			};
+
+			//----------------------------------------------------------------------------------------------------
+			/// General VTF Resource Struct (Aligned)
+			//----------------------------------------------------------------------------------------------------
+			struct VTFResource : public VTFResource_r
+			{
+				VTFResource(const VTFResource_r &rhs)
+				{
+					this->eType = rhs.eType;
+					this->resData = rhs.resData;
+				}
+			};
 		}
 
 		class VTFFile
 		{
 		public:
 			//----------------------------------------------------------------------------------------------------
-			/// Create a VTFFile from a raw unaligned header.
-			/// @param[in] std::unique_ptr<VTF::VTFFileHeader_r> header				The unaligned header to create
-			///																		the VTFFile from.
+			/// Creates a VTFFile from the path to a valid VTFFile.
+			/// @param[in] FilePath				The complete path to the VTFFile.
+			/// @param[in] HeaderOnly			Whether or not to only load the header.
+			/// @throws std::runtime_error		If the file could not be open for some reason, or is corrupted in some way.
+			/// @throws std::invalid_argument	If the file is a version that this library does not support.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI VTFFile(std::unique_ptr<VTF::VTFFileHeader_r> header);
+			XVTFAPI VTFFile(const char* const FilePath, const bool& HeaderOnly);
+
+			XVTFAPI ~VTFFile();
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns the header for the VTF file.
@@ -220,10 +248,44 @@ namespace XVTF_NS
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI std::shared_ptr<VTF::VTFFileHeader> GetHeader();
 
+			//----------------------------------------------------------------------------------------------------
+			/// Returns a resource by its integer type.
+			/// @param[in] type							The type of the resource to return (hint: use the StockResourceTypes).
+			/// @return VTFResource						A unique pointer to the grabbed resource, or nullptr if it doesn't exist.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI std::unique_ptr<XVTF_NS::ImageFile::VTF::VTFResource> GetResourceType(const unsigned int& type);
+
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the decompressed image data.
+			/// @param[in] MipLevel						The mip to load, 0 being the largest.
+			/// @param[in] Frame						The frame to load, 0 being the first frame.
+			/// @param[in] Face							The face to load (if the image contains any).
+			/// @param[in] zLevel						The z-depth/slice to load (if any).
+			/// @returns T*								A pointer to the array of data.
+			/// @throws std::out_of_range				If requested image does not exist for this file.
+			//----------------------------------------------------------------------------------------------------
+			template <typename T> T* GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
+				const unsigned int& Face = 0, const unsigned int& zLevel = 0);
+
+			//----------------------------------------------------------------------------------------------------
+			/// Returns an array of all the resolutions contained in the VTF : 0 being the largest MipMap.
+			/// @return Resolution*		The resolution array.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI const Resolution* GetResolutions() const;
+
 		private:
 			std::shared_ptr<VTF::VTFFileHeader_r> _headerRaw;
 			std::shared_ptr<VTF::VTFFileHeader> _headerAligned;
+			Resolution* _mipMapResolutions;
+			void* _highResData;
+			void* _lowResData;
+			float _texelSize;
+			void** _decodedHighResData;
 		};
+
+		template XVTFAPI void* VTFFile::GetImage(const unsigned int&, const unsigned int&, const unsigned int&, const unsigned int&);
+		template XVTFAPI Codec::RGB888* VTFFile::GetImage(const unsigned int&, const unsigned int&, const unsigned int&, const unsigned int&);
+		template XVTFAPI Codec::RGBA8888* VTFFile::GetImage(const unsigned int&, const unsigned int&, const unsigned int&, const unsigned int&);
 	}
 }
 

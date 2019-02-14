@@ -120,7 +120,7 @@ int main(unsigned int argc, char** argv)
 
 		try
 		{
-			auto File = xvtf::IO::VTFReader::Open(CurrentFile.c_str(), true);
+			auto File = new xvtf::ImageFile::VTFFile(CurrentFile.c_str(), true);
 			auto Header = File->GetHeader();
 			auto Version = Header->version;
 			auto ImageForm = Header->imageFormat;
@@ -261,6 +261,8 @@ int main(unsigned int argc, char** argv)
 					SSBUMP++;
 				if ((static_cast<unsigned int>(Flags) & static_cast<unsigned int>(ImageFlags::BORDER)) != 0)
 					BORDER++;
+
+				delete File;
 			}
 			catch (const std::exception &e)
 			{

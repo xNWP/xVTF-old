@@ -15,8 +15,31 @@ namespace XVTF_NS
 {
 	namespace CLI
 	{
+		namespace Codec
+		{
+			public value struct RGB888
+			{
+				unsigned char R;
+				unsigned char G;
+				unsigned char B;
+			};
+
+			public value struct RGBA8888
+			{
+				unsigned char R;
+				unsigned char G;
+				unsigned char B;
+				unsigned char A;
+			};
+		}
+
 		namespace ImageFile
 		{
+			public value struct Resolution
+			{
+				unsigned int Width, Height;
+			};
+
 			namespace VTF
 			{
 				//----------------------------------------------------------------------------------------------------
@@ -94,7 +117,8 @@ namespace XVTF_NS
 				{
 					LOW_RES_IMAGE = 0x01,
 					HIGH_RES_IMAGE = 0x30,
-					RESOURCE_SHEET = 0x10
+					RESOURCE_SHEET = 0x10,
+					CRC			= 0x02435243
 				};
 
 				public ref class VTFResource
@@ -142,6 +166,11 @@ namespace XVTF_NS
 				unsigned short GetDepth();
 				unsigned short GetNumberOfResources();
 				VTF::VTFResource^ GetResource(const int index);
+				unsigned int GetCRC();
+				VTF::VTFResource^ GetResourceType(const unsigned int type);
+				array<XVTF_NS::CLI::ImageFile::Resolution>^ GetResolutions();
+				array<Codec::RGB888>^ GetImageRGB888(const unsigned int MipLevel, const unsigned int Frame,
+					const unsigned int Face, const unsigned int zLevel);
 
 			private:
 				XVTF_NS::ImageFile::VTF::VTFFileHeader* _header;
