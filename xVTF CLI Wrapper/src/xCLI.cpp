@@ -99,9 +99,9 @@ float XVTF_NS::CLI::ImageFile::VTFFile::GetBumpScale()
 	return this->_header->bumpScale;
 }
 
-unsigned int XVTF_NS::CLI::ImageFile::VTFFile::GetFormat()
+XVTF_NS::CLI::ImageFile::VTF::ImageFormat XVTF_NS::CLI::ImageFile::VTFFile::GetFormat()
 {
-	return static_cast<unsigned int>(this->_header->imageFormat);
+	return static_cast<XVTF_NS::CLI::ImageFile::VTF::ImageFormat>(this->_header->imageFormat);
 }
 
 unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetNumberOfMipLevels()
@@ -173,6 +173,25 @@ array<XVTF_NS::CLI::Codec::RGB888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageRG
 		rval[i].G = *((char*)NativeData + 1);
 		rval[i].B = *((char*)NativeData + 2);
 		NativeData = (void*)((char*)NativeData + 3);
+	}
+
+	return rval;
+}
+
+array<XVTF_NS::CLI::Codec::RGBA8888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageRGBA8888(const unsigned int MipLevel, const unsigned int Frame,
+	const unsigned int Face, const unsigned int zLevel)
+{
+	void* NativeData = this->_impl->GetImage<void>(MipLevel, Frame, Face, zLevel);
+	auto RES = GetResolutions()[MipLevel];
+	array<Codec::RGBA8888>^ rval = gcnew array<Codec::RGBA8888>(RES.Width * RES.Height);
+
+	for (unsigned int i = 0; i < RES.Width * RES.Height; i++)
+	{
+		rval[i].R = *((char*)NativeData);
+		rval[i].G = *((char*)NativeData + 1);
+		rval[i].B = *((char*)NativeData + 2);
+		rval[i].A = *((char*)NativeData + 3);
+		NativeData = (void*)((char*)NativeData + 4);
 	}
 
 	return rval;

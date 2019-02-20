@@ -158,7 +158,7 @@ namespace XVTF_NS
 				unsigned short GetStartFrame();
 				array<float>^ GetReflectivity();
 				float GetBumpScale();
-				unsigned int GetFormat();
+				XVTF_NS::CLI::ImageFile::VTF::ImageFormat GetFormat();
 				unsigned short GetNumberOfMipLevels();
 				unsigned int GetLowResFormat();
 				unsigned short GetLowResWidth();
@@ -170,6 +170,8 @@ namespace XVTF_NS
 				VTF::VTFResource^ GetResourceType(const unsigned int type);
 				array<XVTF_NS::CLI::ImageFile::Resolution>^ GetResolutions();
 				array<Codec::RGB888>^ GetImageRGB888(const unsigned int MipLevel, const unsigned int Frame,
+					const unsigned int Face, const unsigned int zLevel);
+				array<Codec::RGBA8888>^ GetImageRGBA8888(const unsigned int MipLevel, const unsigned int Frame,
 					const unsigned int Face, const unsigned int zLevel);
 
 			private:

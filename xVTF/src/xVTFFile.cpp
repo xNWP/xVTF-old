@@ -174,8 +174,6 @@ template <typename T> T* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned in
 	/* Find Appropriate Start To Data */
 	unsigned int START = 0;
 
-	auto RES = *(this->_mipMapResolutions + MipLevel);
-	const unsigned int RES_FACTOR = (RES.Width < 4 ? 4 : RES.Width = RES.Width) * (RES.Height < 4 ? 4 : RES.Height = RES.Height);
 	const unsigned int SLICE_FACTOR = Header->depth;
 	const unsigned int FACE_FACTOR = SLICE_FACTOR * (EnvMap ? 6 : 1);
 	const unsigned int FRAME_FACTOR = FACE_FACTOR * Header->numFrames;
@@ -222,6 +220,8 @@ template <typename T> T* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned in
 	else
 		BytesPerPixel = 8;
 
+	auto RES = *(this->_mipMapResolutions + MipLevel);
+	const unsigned int RES_FACTOR = (RES.Width < 4 ? 4 : RES.Width = RES.Width) * (RES.Height < 4 ? 4 : RES.Height = RES.Height);
 	*dPtr = new char[RES_FACTOR * BytesPerPixel];
 
 	/* Scope to the correct Mip */
@@ -245,6 +245,8 @@ template <typename T> T* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned in
 	/* And let the decoder take it from here */
 	if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1)
 		*dPtr = Codec::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height);
+	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA)
+		*dPtr = Codec::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height);
 
 	return (T*)(*dPtr);
 }
