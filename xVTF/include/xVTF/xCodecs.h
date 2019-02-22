@@ -70,6 +70,16 @@ namespace XVTF_NS
 		/// @return void*							The decompressed RGBA8888 values as an array of size width * height.
 		//----------------------------------------------------------------------------------------------------
 		void* DecompressDXT3(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height);
+
+		//----------------------------------------------------------------------------------------------------
+		/// Decompresses a DXT5 (paletted alpha) file and returns a pointer to an array of RGBA values.
+		/// @param[in] buffer						The buffer of compressed data to decompress.
+		/// @param[in] offset						Where in the buffer to start reading the data from.
+		/// @param[in] width						Width of the image in pixels.
+		/// @param[in] height						Height of the image in pixels.
+		/// @return void*							The decompressed RGBA8888 values as an array of size width * height.
+		//----------------------------------------------------------------------------------------------------
+		void* DecompressDXT5(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height);
 	}
 }
 

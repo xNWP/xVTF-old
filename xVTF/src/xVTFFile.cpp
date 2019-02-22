@@ -249,6 +249,8 @@ template <typename T> T* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned in
 		*dPtr = Codec::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT3)
 		*dPtr = Codec::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height);
+	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT5)
+		*dPtr = Codec::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height);
 
 	return (T*)(*dPtr);
 }
