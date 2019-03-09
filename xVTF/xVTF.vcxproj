@@ -37,11 +37,13 @@
   <ItemGroup>
     <ClInclude Include="include\xVTF\xCodecs.h" />
     <ClInclude Include="include\xVTF\xExports.h" />
+    <ClInclude Include="include\xVTF\xImageFile.h" />
     <ClInclude Include="include\xVTF\xVTF.h" />
     <ClInclude Include="include\xVTF\xVTFFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\xCodecs.cpp" />
+    <ClCompile Include="src\xImageFile.cpp" />
     <ClCompile Include="src\xVTFFile.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -5,9 +5,11 @@
     <ClInclude Include="include\xVTF\xExports.h" />
     <ClInclude Include="include\xVTF\xVTFFile.h" />
     <ClInclude Include="include\xVTF\xCodecs.h" />
+    <ClInclude Include="include\xVTF\xImageFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\xVTFFile.cpp" />
     <ClCompile Include="src\xCodecs.cpp" />
+    <ClCompile Include="src\xImageFile.cpp" />
   </ItemGroup>
 </Project>

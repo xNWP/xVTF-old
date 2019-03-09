@@ -3,6 +3,7 @@
 
 #include "xVTF/xCodecs.h"
 #include "xVTF/xExports.h"
+#include "xVTF/xImageFile.h"
 
 #include <stdexcept>
 #include <memory>
@@ -59,12 +60,20 @@ namespace XVTF_NS
 
 			//----------------------------------------------------------------------------------------------------
 			/// Provides the Bytes Per Pixel values for each of the ImageFormat (s).
+			/// Compressed values stay compressed.
 			//----------------------------------------------------------------------------------------------------
 			const float ImageFormatBPP[] =
 			{ 4.0f, 4.0f, 3.0f, 3.0f, 2.0f, 1.0f, 2.0f,
 			  1.0f, 1.0f, 3.0f, 3.0f, 4.0f, 4.0f, 0.5f,
 			  1.0f, 1.0f, 4.0f, 2.0f, 2.0f, 2.0f, 0.5f,
 			  2.0f, 2.0f, 4.0f, 8.0f, 8.0f, 4.0f };
+
+			//----------------------------------------------------------------------------------------------------
+			/// Provides the Bytes Per Pixel values for each of the ImageFormat (s).
+			/// Compressed values given in uncompressed size.
+			//----------------------------------------------------------------------------------------------------
+			const unsigned char ImageFormatBPPU[] =
+			{ 4, 4, 3, 3, 3, 1, 2, 1, 1, 3, 3, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 4, 2, 4, 8, 8, 4 };
 
 			//----------------------------------------------------------------------------------------------------
 			/// Various flags that a VTF image may provide
@@ -256,15 +265,15 @@ namespace XVTF_NS
 			XVTFAPI std::unique_ptr<XVTF_NS::ImageFile::VTF::VTFResource> GetResourceType(const unsigned int& type);
 
 			//----------------------------------------------------------------------------------------------------
-			/// Returns the decompressed image data.
+			/// Returns the raw image data. Uncompressed formats are first decoded.
 			/// @param[in] MipLevel						The mip to load, 0 being the largest.
 			/// @param[in] Frame						The frame to load, 0 being the first frame.
 			/// @param[in] Face							The face to load (if the image contains any).
 			/// @param[in] zLevel						The z-depth/slice to load (if any).
-			/// @returns T*								A pointer to the array of data.
+			/// @return BitmapImage*					A pointer to the BitmapImage class.
 			/// @throws std::out_of_range				If requested image does not exist for this file.
 			//----------------------------------------------------------------------------------------------------
-			template <typename T> T* GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
+			XVTFAPI BitmapImage* GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
 				const unsigned int& Face = 0, const unsigned int& zLevel = 0);
 
 			//----------------------------------------------------------------------------------------------------
@@ -280,12 +289,7 @@ namespace XVTF_NS
 			void* _highResData;
 			void* _lowResData;
 			float _texelSize;
-			void** _decodedHighResData;
 		};
-
-		template XVTFAPI void* VTFFile::GetImage(const unsigned int&, const unsigned int&, const unsigned int&, const unsigned int&);
-		template XVTFAPI Codec::RGB888* VTFFile::GetImage(const unsigned int&, const unsigned int&, const unsigned int&, const unsigned int&);
-		template XVTFAPI Codec::RGBA8888* VTFFile::GetImage(const unsigned int&, const unsigned int&, const unsigned int&, const unsigned int&);
 	}
 }
 

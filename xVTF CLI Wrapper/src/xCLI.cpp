@@ -109,9 +109,9 @@ unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetNumberOfMipLevels()
 	return this->_header->numMipLevels;
 }
 
-unsigned int XVTF_NS::CLI::ImageFile::VTFFile::GetLowResFormat()
+XVTF_NS::CLI::ImageFile::VTF::ImageFormat XVTF_NS::CLI::ImageFile::VTFFile::GetLowResFormat()
 {
-	return static_cast<unsigned int>(this->_header->lowResImageFormat);
+	return static_cast<XVTF_NS::CLI::ImageFile::VTF::ImageFormat>(this->_header->lowResImageFormat);
 }
 
 unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetLowResWidth()
@@ -163,17 +163,19 @@ XVTF_NS::CLI::ImageFile::VTF::VTFResource^ XVTF_NS::CLI::ImageFile::VTFFile::Get
 array<XVTF_NS::CLI::Codec::RGB888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageRGB888(const unsigned int MipLevel, const unsigned int Frame,
 	const unsigned int Face, const unsigned int zLevel)
 {
-	void* NativeData = this->_impl->GetImage<void>(MipLevel, Frame, Face, zLevel);
+	auto NativeData = this->_impl->GetImage(MipLevel, Frame, Face, zLevel);
 	auto RES = GetResolutions()[MipLevel];
 	array<Codec::RGB888>^ rval = gcnew array<Codec::RGB888>(RES.Width * RES.Height);
 
 	for (unsigned int i = 0; i < RES.Width * RES.Height; i++)
 	{
-		rval[i].R = *((char*)NativeData);
-		rval[i].G = *((char*)NativeData + 1);
-		rval[i].B = *((char*)NativeData + 2);
-		NativeData = (void*)((char*)NativeData + 3);
+		void* pixel = (*NativeData)[i];
+		rval[i].R = *((char*)pixel);
+		rval[i].G = *((char*)pixel + 1);
+		rval[i].B = *((char*)pixel + 2);
 	}
+
+	delete NativeData;
 
 	return rval;
 }
@@ -192,6 +194,91 @@ array<XVTF_NS::CLI::Codec::RGBA8888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImage
 		rval[i].B = *((char*)NativeData + 2);
 		rval[i].A = *((char*)NativeData + 3);
 		NativeData = (void*)((char*)NativeData + 4);
+	}
+
+	return rval;
+}
+
+array<XVTF_NS::CLI::Codec::ABGR8888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageABGR8888(const unsigned int MipLevel, const unsigned int Frame,
+	const unsigned int Face, const unsigned int zLevel)
+{
+	void* NativeData = this->_impl->GetImage<void>(MipLevel, Frame, Face, zLevel);
+	auto RES = GetResolutions()[MipLevel];
+	array<Codec::ABGR8888>^ rval = gcnew array<Codec::ABGR8888>(RES.Width * RES.Height);
+
+	for (unsigned int i = 0; i < RES.Width * RES.Height; i++)
+	{
+		rval[i].A = *((char*)NativeData);
+		rval[i].B = *((char*)NativeData + 1);
+		rval[i].G = *((char*)NativeData + 2);
+		rval[i].R = *((char*)NativeData + 3);
+		NativeData = (void*)((char*)NativeData + 4);
+	}
+
+	return rval;
+}
+
+array<XVTF_NS::CLI::Codec::BGR888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageBGR888(const unsigned int MipLevel, const unsigned int Frame,
+	const unsigned int Face, const unsigned int zLevel)
+{
+	void* NativeData = this->_impl->GetImage<void>(MipLevel, Frame, Face, zLevel);
+	auto RES = GetResolutions()[MipLevel];
+	array<Codec::BGR888>^ rval = gcnew array<Codec::BGR888>(RES.Width * RES.Height);
+
+	for (unsigned int i = 0; i < RES.Width * RES.Height; i++)
+	{
+		rval[i].B = *((char*)NativeData);
+		rval[i].G = *((char*)NativeData + 1);
+		rval[i].R = *((char*)NativeData + 2);
+		NativeData = (void*)((char*)NativeData + 3);
+	}
+
+	return rval;
+}
+
+array<XVTF_NS::CLI::Codec::RGB565>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageRGB565(const unsigned int MipLevel, const unsigned int Frame,
+	const unsigned int Face, const unsigned int zLevel)
+{
+	void* NativeData = this->_impl->GetImage<void>(MipLevel, Frame, Face, zLevel);
+	auto RES = GetResolutions()[MipLevel];
+	array<Codec::RGB565>^ rval = gcnew array<Codec::RGB565>(RES.Width * RES.Height);
+
+	for (unsigned int i = 0; i < RES.Width * RES.Height; i++)
+	{
+		rval[i] = *((Codec::RGB565*)NativeData);
+		NativeData = (void*)((char*)NativeData + 2);
+	}
+
+	return rval;
+}
+
+array<XVTF_NS::CLI::Codec::X8>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageX8(const unsigned int MipLevel, const unsigned int Frame,
+	const unsigned int Face, const unsigned int zLevel)
+{
+	void* NativeData = this->_impl->GetImage<void>(MipLevel, Frame, Face, zLevel);
+	auto RES = GetResolutions()[MipLevel];
+	array<Codec::X8>^ rval = gcnew array<Codec::X8>(RES.Width * RES.Height);
+
+	for (unsigned int i = 0; i < RES.Width * RES.Height; i++)
+	{
+		rval[i] = *((Codec::X8*)NativeData);
+		NativeData = (void*)((char*)NativeData + 1);
+	}
+
+	return rval;
+}
+
+array<XVTF_NS::CLI::Codec::XX88>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageXX88(const unsigned int MipLevel, const unsigned int Frame,
+	const unsigned int Face, const unsigned int zLevel)
+{
+	void* NativeData = this->_impl->GetImage<void>(MipLevel, Frame, Face, zLevel);
+	auto RES = GetResolutions()[MipLevel];
+	array<Codec::XX88>^ rval = gcnew array<Codec::XX88>(RES.Width * RES.Height);
+
+	for (unsigned int i = 0; i < RES.Width * RES.Height; i++)
+	{
+		rval[i] = *((Codec::XX88*)NativeData);
+		NativeData = (void*)((char*)NativeData + 2);
 	}
 
 	return rval;

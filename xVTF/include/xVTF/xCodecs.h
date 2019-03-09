@@ -21,6 +21,47 @@ namespace XVTF_NS
 			unsigned char A;
 		};
 
+		struct ABGR8888
+		{
+			unsigned char A;
+			unsigned char B;
+			unsigned char G;
+			unsigned char R;
+		};
+
+		struct BGR888
+		{
+			unsigned char B;
+			unsigned char G;
+			unsigned char R;
+		};
+
+		struct RGB565
+		{
+			unsigned char R : 5;
+			unsigned char G : 6;
+			unsigned char B : 5;
+		};
+
+		struct X8
+		{
+			unsigned char X;
+		};
+
+		struct XX88
+		{
+			unsigned char X1;
+			unsigned char X2;
+		};
+
+		struct ARGB8888
+		{
+			unsigned char A;
+			unsigned char R;
+			unsigned char G;
+			unsigned char B;
+		};
+
 		//----------------------------------------------------------------------------------------------------
 		/// Mixes two RGB888 values together.
 		/// @param[in] _A			The first colour to mix.

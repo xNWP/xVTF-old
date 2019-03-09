@@ -59,7 +59,11 @@ XVTF_NS::ImageFile::VTFFile::VTFFile(const char* const FilePath, const bool& Hea
 
 	/* Determine LowResImage start (thumbnail) */
 	unsigned int LowResStart;
-	if (Header->version[1] < 3)
+	if (Header->lowResImageFormat == VTF::ImageFormat::NONE)
+	{
+		LowResStart = -1;
+	}
+	else if (Header->version[1] < 3)
 	{
 		LowResStart = Header->headerSize;
 	}
@@ -156,11 +160,11 @@ std::unique_ptr<XVTF_NS::ImageFile::VTF::VTFResource> XVTF_NS::ImageFile::VTFFil
 	return nullptr;
 }
 
-template <typename T> T* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned int& MipLevel, const unsigned int& Frame,
+XVTF_NS::BitmapImage* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned int& MipLevel, const unsigned int& Frame,
 	const unsigned int& Face, const unsigned int& zLevel)
 {
 	auto Header = this->_headerAligned;
-	bool EnvMap = (static_cast<unsigned int>(Header->flags) & static_cast<unsigned int>(VTF::ImageFlags::ENVIRONMENTMAP)) != 0;
+	const bool EnvMap = (static_cast<unsigned int>(Header->flags) & static_cast<unsigned int>(VTF::ImageFlags::ENVIRONMENTMAP)) != 0;
 	/* Catch Bad Indices */
 	if (MipLevel >= this->_headerAligned->numMipLevels)
 		throw std::out_of_range("GetImageData: MipLevel out of range.");
@@ -178,59 +182,40 @@ template <typename T> T* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned in
 	const unsigned int FACE_FACTOR = SLICE_FACTOR * (EnvMap ? 6 : 1);
 	const unsigned int FRAME_FACTOR = FACE_FACTOR * Header->numFrames;
 
-	/* Check if we already have this data */
-	if (this->_decodedHighResData == nullptr)
-		this->_decodedHighResData = new void*[Header->numMipLevels * Header->numFrames * Header->depth * (EnvMap ? 6 : 1)]();
-
-	void** dPtr = this->_decodedHighResData + (MipLevel * FRAME_FACTOR) + (Frame * FACE_FACTOR) + (Face * SLICE_FACTOR) + zLevel;
-
-	if(*dPtr)
-		return (T*)(*dPtr);
-
-	unsigned short BytesPerPixel;
-	if (Header->imageFormat == VTF::ImageFormat::A8 ||
-		Header->imageFormat == VTF::ImageFormat::I8 ||
-		Header->imageFormat == VTF::ImageFormat::P8)
-		BytesPerPixel = 1;
-	else if (Header->imageFormat == VTF::ImageFormat::BGR565 ||
-		Header->imageFormat == VTF::ImageFormat::BGRA4444 ||
-		Header->imageFormat == VTF::ImageFormat::BGRA5551 ||
-		Header->imageFormat == VTF::ImageFormat::BGRX5551 ||
-		Header->imageFormat == VTF::ImageFormat::IA88 ||
-		Header->imageFormat == VTF::ImageFormat::RGB565 ||
-		Header->imageFormat == VTF::ImageFormat::UV88)
-		BytesPerPixel = 2;
-	else if (Header->imageFormat == VTF::ImageFormat::BGR888 ||
-		Header->imageFormat == VTF::ImageFormat::BGR888_BLUESCREEN ||
-		Header->imageFormat == VTF::ImageFormat::RGB888 ||
-		Header->imageFormat == VTF::ImageFormat::RGB888_BLUESCREEN ||
-		Header->imageFormat == VTF::ImageFormat::DXT1)
-		BytesPerPixel = 3;
-	else if (Header->imageFormat == VTF::ImageFormat::ABGR8888 ||
-		Header->imageFormat == VTF::ImageFormat::ARGB8888 ||
-		Header->imageFormat == VTF::ImageFormat::BGRA8888 ||
-		Header->imageFormat == VTF::ImageFormat::BGRX8888 ||
-		Header->imageFormat == VTF::ImageFormat::RGBA8888 ||
-		Header->imageFormat == VTF::ImageFormat::UVLX8888 ||
-		Header->imageFormat == VTF::ImageFormat::UVWQ8888 || 
+	const bool COMP = Header->imageFormat == VTF::ImageFormat::DXT1 ||
 		Header->imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA ||
 		Header->imageFormat == VTF::ImageFormat::DXT3 ||
-		Header->imageFormat == VTF::ImageFormat::DXT5)
-		BytesPerPixel = 4;
-	else
-		BytesPerPixel = 8;
+		Header->imageFormat == VTF::ImageFormat::DXT5;
+
+	unsigned short BytesPerPixel = VTF::ImageFormatBPPU[static_cast<unsigned int>(Header->imageFormat)];
 
 	auto RES = *(this->_mipMapResolutions + MipLevel);
-	const unsigned int RES_FACTOR = (RES.Width < 4 ? 4 : RES.Width = RES.Width) * (RES.Height < 4 ? 4 : RES.Height = RES.Height);
-	*dPtr = new char[RES_FACTOR * BytesPerPixel];
+	unsigned int RES_FACTOR;
+	
+	if (!COMP)
+		RES_FACTOR = RES.Width * RES.Height;
+	else
+		RES_FACTOR = (RES.Width < 4 ? 4 : RES.Width) * (RES.Height < 4 ? 4 : RES.Height);
 
 	/* Scope to the correct Mip */
-	for (unsigned int MIP = Header->numMipLevels - 1; MIP > MipLevel; --MIP)
+	if (COMP)
 	{
-		auto res = *(this->_mipMapResolutions + MIP);
-		START += static_cast<unsigned int>((res.Width < 4 ? 4 : res.Width)
-			* (res.Height < 4 ? 4 : res.Height)
-			* FRAME_FACTOR * this->_texelSize);
+		for (unsigned int MIP = Header->numMipLevels - 1; MIP > MipLevel; --MIP)
+		{
+			auto res = *(this->_mipMapResolutions + MIP);
+			START += static_cast<unsigned int>
+				((res.Width < 4 ? 4 : res.Width) * (res.Height < 4 ? 4 : res.Width)
+					* FRAME_FACTOR * this->_texelSize);
+		}
+	}
+	else
+	{
+		for (unsigned int MIP = Header->numMipLevels - 1; MIP > MipLevel; --MIP)
+		{
+			auto res = *(this->_mipMapResolutions + MIP);
+			START += static_cast<unsigned int>
+				(res.Width * res.Height * FRAME_FACTOR * this->_texelSize);
+		}
 	}
 
 	/* Scope to the correct frame */
@@ -242,17 +227,17 @@ template <typename T> T* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned in
 	/* And finally the correct slice */
 	START += static_cast<unsigned int>(zLevel * RES_FACTOR * this->_texelSize);
 
-	/* And let the decoder take it from here */
-	if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1)
-		*dPtr = Codec::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height);
+	/* And let the decoder take it from here (for compressed formats) */
+	if (!COMP)
+		return new BitmapImage( ((void*)((char*)this->_highResData + START)), RES_FACTOR, BytesPerPixel, false );
+	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1)
+		return new BitmapImage(Codec::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA)
-		*dPtr = Codec::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height);
+		return new BitmapImage(Codec::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT3)
-		*dPtr = Codec::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height);
+		return new BitmapImage(Codec::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT5)
-		*dPtr = Codec::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height);
-
-	return (T*)(*dPtr);
+		return new BitmapImage(Codec::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 }
 
 const XVTF_NS::ImageFile::Resolution* XVTF_NS::ImageFile::VTFFile::GetResolutions() const

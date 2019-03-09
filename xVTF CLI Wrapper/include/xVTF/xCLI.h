@@ -31,6 +31,37 @@ namespace XVTF_NS
 				unsigned char B;
 				unsigned char A;
 			};
+
+			public value struct ABGR8888
+			{
+				unsigned char A;
+				unsigned char B;
+				unsigned char G;
+				unsigned char R;
+			};
+
+			public value struct BGR888
+			{
+				unsigned char B;
+				unsigned char G;
+				unsigned char R;
+			};
+
+			public value struct RGB565
+			{
+				unsigned short RGB;
+			};
+
+			public value struct X8
+			{
+				unsigned char X;
+			};
+
+			public value struct XX88
+			{
+				unsigned char X1;
+				unsigned char X2;
+			};
 		}
 
 		namespace ImageFile
@@ -160,7 +191,7 @@ namespace XVTF_NS
 				float GetBumpScale();
 				XVTF_NS::CLI::ImageFile::VTF::ImageFormat GetFormat();
 				unsigned short GetNumberOfMipLevels();
-				unsigned int GetLowResFormat();
+				XVTF_NS::CLI::ImageFile::VTF::ImageFormat GetLowResFormat();
 				unsigned short GetLowResWidth();
 				unsigned short GetLowResHeight();
 				unsigned short GetDepth();
