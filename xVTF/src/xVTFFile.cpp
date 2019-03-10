@@ -1,6 +1,26 @@
 #include "xVTF/xVTFFile.h"
 
-XVTF_NS::ImageFile::VTFFile::VTFFile(const char* const FilePath, const bool& HeaderOnly)
+class XVTF_NS::Bitmap::VTFFile::__VTFFileImpl
+{
+public:
+	__VTFFileImpl(const char* FilePath, const bool& HeaderOnly);
+	virtual ~__VTFFileImpl();
+
+	VTF::VTFFileHeader* GetHeader();
+	VTF::VTFResource* GetResourceType(const unsigned int& type);
+	BitmapImage* GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0, const unsigned int& Face = 0, const unsigned int& zLevel = 0);
+	const Resolution* GetResolutions() const;
+
+private:
+	std::shared_ptr<VTF::VTFFileHeader_r> _headerRaw;
+	std::shared_ptr<VTF::VTFFileHeader> _headerAligned;
+	Resolution* _mipMapResolutions;
+	void* _highResData;
+	void* _lowResData;
+	float _texelSize;
+};
+
+XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const bool& HeaderOnly)
 {
 	auto File = fopen(FilePath, "rb");
 	if (File == nullptr)
@@ -41,7 +61,7 @@ XVTF_NS::ImageFile::VTFFile::VTFFile(const char* const FilePath, const bool& Hea
 	/* Feed all of this information into the VTF header struct */
 	_fseeki64(File, 0, SEEK_SET);
 
-	this->_headerRaw = std::make_shared<XVTF_NS::ImageFile::VTF::VTFFileHeader_r>();
+	this->_headerRaw = std::make_shared<VTF::VTFFileHeader_r>();
 	if (HeaderSize > sizeof(*this->_headerRaw))
 	{
 		std::string err = "Error opening file '";
@@ -50,12 +70,12 @@ XVTF_NS::ImageFile::VTFFile::VTFFile(const char* const FilePath, const bool& Hea
 	}
 
 	fread(this->_headerRaw.get(), 1, HeaderSize, File);
-	this->_headerAligned = std::static_pointer_cast<XVTF_NS::ImageFile::VTF::VTFFileHeader>(this->_headerRaw);
+	this->_headerAligned = std::static_pointer_cast<VTF::VTFFileHeader>(this->_headerRaw);
 
 	auto Header = this->_headerAligned;
 
 	/* Determine Texel Size (Bytes Per Pixel) */
-	this->_texelSize = VTF::ImageFormatBPP[static_cast<unsigned int>(Header->imageFormat)];
+	this->_texelSize = Tools::LUT::ImageFormatBPP[static_cast<unsigned int>(Header->imageFormat)];
 
 	/* Determine LowResImage start (thumbnail) */
 	unsigned int LowResStart;
@@ -85,7 +105,7 @@ XVTF_NS::ImageFile::VTFFile::VTFFile(const char* const FilePath, const bool& Hea
 	}
 
 	/* Fill MipLevel Resolutions */
-	this->_mipMapResolutions = new ImageFile::Resolution[Header->numMipLevels];
+	this->_mipMapResolutions = new Resolution[Header->numMipLevels];
 	for (unsigned int i = Header->numMipLevels; i > 0; --i)
 	{
 		unsigned int w = static_cast<unsigned int>(Header->width / std::pow(2, i - 1));
@@ -136,31 +156,32 @@ XVTF_NS::ImageFile::VTFFile::VTFFile(const char* const FilePath, const bool& Hea
 	fclose(File);
 }
 
-XVTF_NS::ImageFile::VTFFile::~VTFFile()
+XVTF_NS::Bitmap::VTF::VTFFileHeader* XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::GetHeader()
+{
+	return this->_headerAligned.get();
+}
+
+XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::~__VTFFileImpl()
 {
 	delete[] this->_highResData;
 	delete[] this->_lowResData;
 	delete[] this->_mipMapResolutions;
 }
 
-std::shared_ptr<XVTF_NS::ImageFile::VTF::VTFFileHeader> XVTF_NS::ImageFile::VTFFile::GetHeader()
-{
-	return this->_headerAligned;
-}
-
-std::unique_ptr<XVTF_NS::ImageFile::VTF::VTFResource> XVTF_NS::ImageFile::VTFFile::GetResourceType(const unsigned int& type)
+XVTF_NS::Bitmap::VTF::VTFResource* XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::GetResourceType(const unsigned int& type)
 {
 	for (unsigned int i = 0; i < this->GetHeader()->numResources; i++)
 	{
 		if (this->GetHeader()->resources[i].eType == type)
 		{
-			return std::make_unique<XVTF_NS::ImageFile::VTF::VTFResource>(this->GetHeader()->resources[i]);
+			VTF::VTFResource* ptr = static_cast<VTF::VTFResource*>(&this->GetHeader()->resources[i]);
+			return ptr;
 		}
 	}
 	return nullptr;
 }
 
-XVTF_NS::BitmapImage* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned int& MipLevel, const unsigned int& Frame,
+XVTF_NS::Bitmap::BitmapImage* XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::GetImage(const unsigned int& MipLevel, const unsigned int& Frame,
 	const unsigned int& Face, const unsigned int& zLevel)
 {
 	auto Header = this->_headerAligned;
@@ -187,7 +208,7 @@ XVTF_NS::BitmapImage* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned int& 
 		Header->imageFormat == VTF::ImageFormat::DXT3 ||
 		Header->imageFormat == VTF::ImageFormat::DXT5;
 
-	unsigned short BytesPerPixel = VTF::ImageFormatBPPU[static_cast<unsigned int>(Header->imageFormat)];
+	unsigned short BytesPerPixel = Tools::LUT::ImageFormatBPPU[static_cast<unsigned int>(Header->imageFormat)];
 
 	auto RES = *(this->_mipMapResolutions + MipLevel);
 	unsigned int RES_FACTOR;
@@ -231,16 +252,55 @@ XVTF_NS::BitmapImage* XVTF_NS::ImageFile::VTFFile::GetImage(const unsigned int& 
 	if (!COMP)
 		return new BitmapImage( ((void*)((char*)this->_highResData + START)), RES_FACTOR, BytesPerPixel, false );
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1)
-		return new BitmapImage(Codec::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+		return new BitmapImage(Tools::Codecs::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA)
-		return new BitmapImage(Codec::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+		return new BitmapImage(Tools::Codecs::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT3)
-		return new BitmapImage(Codec::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+		return new BitmapImage(Tools::Codecs::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT5)
-		return new BitmapImage(Codec::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+		return new BitmapImage(Tools::Codecs::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+
+	throw std::runtime_error("Critical Error in XVTF_NS::Bitmap::BitmapImage* XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::GetImage(const unsigned int& MipLevel, const unsigned int& Frame, unsigned int& Face, const unsigned int& zLevel)");
+	return nullptr;
 }
 
-const XVTF_NS::ImageFile::Resolution* XVTF_NS::ImageFile::VTFFile::GetResolutions() const
+const XVTF_NS::Bitmap::Resolution* XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::GetResolutions() const
 {
 	return this->_mipMapResolutions;
+}
+
+XVTF_NS::Bitmap::VTFFile* XVTF_NS::Bitmap::VTFFile::Alloc(const char* FilePath, const bool& HeaderOnly)
+{
+	VTFFile* r = new VTFFile();
+	r->_impl = new __VTFFileImpl(FilePath, HeaderOnly);
+	return r;
+}
+
+void XVTF_NS::Bitmap::VTFFile::Free(VTFFile*& obj)
+{
+	delete obj->_impl;
+	obj->_impl = nullptr;
+	delete obj;
+	obj = nullptr;
+}
+
+XVTF_NS::Bitmap::VTF::VTFFileHeader* XVTF_NS::Bitmap::VTFFile::GetHeader()
+{
+	return this->_impl->GetHeader();
+}
+
+XVTF_NS::Bitmap::VTF::VTFResource* XVTF_NS::Bitmap::VTFFile::GetResourceType(const unsigned int& type)
+{
+	return this->_impl->GetResourceType(type);
+}
+
+XVTF_NS::Bitmap::BitmapImage* XVTF_NS::Bitmap::VTFFile::GetImage(const unsigned int& MipLevel, const unsigned int& Frame,
+	const unsigned int& Face, const unsigned int& zLevel)
+{
+	return this->_impl->GetImage(MipLevel, Frame, Face, zLevel);
+}
+
+const XVTF_NS::Bitmap::Resolution* XVTF_NS::Bitmap::VTFFile::GetResolutions() const
+{
+	return this->_impl->GetResolutions();
 }

@@ -6,6 +6,9 @@
     <ClInclude Include="include\xVTF\xVTFFile.h" />
     <ClInclude Include="include\xVTF\xCodecs.h" />
     <ClInclude Include="include\xVTF\xImageFile.h" />
+    <ClInclude Include="include\xVTF\xVTFStructs.h" />
+    <ClInclude Include="include\xVTF\xLUTs.h" />
+    <ClInclude Include="include\xVTF\xMacros.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\xVTFFile.cpp" />

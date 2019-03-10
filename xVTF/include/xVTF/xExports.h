@@ -15,7 +15,4 @@
 #	endif
 #endif
 
-/* Namespace Definition */
-#define XVTF_NS xvtf
-
 #endif // !XEXPORTS_H__
