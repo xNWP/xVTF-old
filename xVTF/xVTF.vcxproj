@@ -40,6 +40,7 @@
     <ClInclude Include="include\xVTF\xImageFile.h" />
     <ClInclude Include="include\xVTF\xLUTs.h" />
     <ClInclude Include="include\xVTF\xMacros.h" />
+    <ClInclude Include="include\xVTF\xPixelFormats.h" />
     <ClInclude Include="include\xVTF\xVTF.h" />
     <ClInclude Include="include\xVTF\xVTFFile.h" />
     <ClInclude Include="include\xVTF\xVTFStructs.h" />

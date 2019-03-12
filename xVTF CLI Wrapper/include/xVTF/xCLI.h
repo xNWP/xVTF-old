@@ -155,7 +155,7 @@ namespace XVTF_NS
 				public ref class VTFResource
 				{
 				public:
-					VTFResource(const XVTF_NS::ImageFile::VTF::VTFResource_r &res);
+					VTFResource(const XVTF_NS::Bitmap::VTF::VTFResource_r &res);
 					~VTFResource();
 					!VTFResource();
 
@@ -164,7 +164,7 @@ namespace XVTF_NS
 					unsigned int GetResData();
 
 				private:
-					XVTF_NS::ImageFile::VTF::VTFResource_r*_raw;
+					XVTF_NS::Bitmap::VTF::VTFResource_r*_raw;
 				};
 			}
 
@@ -206,8 +206,8 @@ namespace XVTF_NS
 					const unsigned int Face, const unsigned int zLevel);
 
 			private:
-				XVTF_NS::ImageFile::VTF::VTFFileHeader* _header;
-				XVTF_NS::ImageFile::VTFFile* _impl;
+				XVTF_NS::Bitmap::VTF::VTFFileHeader* _header;
+				XVTF_NS::Bitmap::VTFFile* _impl;
 			};
 		}
 	}

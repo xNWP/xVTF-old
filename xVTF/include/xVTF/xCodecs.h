@@ -2,8 +2,7 @@
 #define XVTF_CODECS_H__
 
 #include "xVTF/xMacros.h"
-
-#include <memory>
+#include "xVTF/xPixelFormats.h"
 
 namespace XVTF_NS
 {
@@ -11,58 +10,7 @@ namespace XVTF_NS
 	{
 		namespace Codecs
 		{
-			struct RGB888
-			{
-				unsigned char R;
-				unsigned char G;
-				unsigned char B;
-			};
-
-			struct RGBA8888 : public RGB888
-			{
-				unsigned char A;
-			};
-
-			struct ABGR8888
-			{
-				unsigned char A;
-				unsigned char B;
-				unsigned char G;
-				unsigned char R;
-			};
-
-			struct BGR888
-			{
-				unsigned char B;
-				unsigned char G;
-				unsigned char R;
-			};
-
-			struct RGB565
-			{
-				unsigned char R : 5;
-				unsigned char G : 6;
-				unsigned char B : 5;
-			};
-
-			struct X8
-			{
-				unsigned char X;
-			};
-
-			struct XX88
-			{
-				unsigned char X1;
-				unsigned char X2;
-			};
-
-			struct ARGB8888
-			{
-				unsigned char A;
-				unsigned char R;
-				unsigned char G;
-				unsigned char B;
-			};
+			using namespace XVTF_NS::Bitmap::PixelFormats;
 
 			//----------------------------------------------------------------------------------------------------
 			/// Mixes two RGB888 values together.

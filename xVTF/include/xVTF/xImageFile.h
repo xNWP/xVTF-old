@@ -1,9 +1,8 @@
 #ifndef XVTF_IMAGEFILE_H__
 #define XVTF_IMAGEFILE_H__
 
+#include "xVTF/xExports.h"
 #include "xVTF/xMacros.h"
-
-#include <stdexcept>
 
 namespace XVTF_NS
 {
@@ -15,26 +14,27 @@ namespace XVTF_NS
 		};
 
 		//----------------------------------------------------------------------------------------------------
-		/// A generic ImageFile class. Whenever using this class it is important
-		/// to call Free() whenever you are done with it to avoid memory leaks.
+		/// A generic BitmapImage class.
 		//----------------------------------------------------------------------------------------------------
 		class BitmapImage
 		{
-		private:
-			BitmapImage();
-			BitmapImage(const BitmapImage&);
-
 		public:
 			//----------------------------------------------------------------------------------------------------
-			/// Construct an BitmapImage from existing data.
-			/// @param[in] data			A pointer to the start of the image data.
-			/// @param[in] size			The number of pixels in the image data.
-			/// @param[in] pixel_size	The size of an individual pixel in bytes.
-			/// @param[in] owns_data	If true, the ImageFile object will free the memory pointed to by data during deconstruction.
+			/// Allocates a new BitmapImage. Ensure that you call BitmapImage::Free() when you are done with the object.
+			/// @param[in] buffer		A pointer the the buffer that contains the image data.
+			/// @param[in] size			The number of pixels that this buffer contains.
+			/// @param[in] pixel_size	The size in bytes that each pixel occupies.
+			/// @param[in] owns_data	If true, the image data for this object will be freed when Free() is called.
+			/// @return BitmapImage*	A pointer to the created object.
 			//----------------------------------------------------------------------------------------------------
-			BitmapImage(void* data, const unsigned int& size, const unsigned short& pixel_size, const bool& owns_data);
+			XVTFAPI static BitmapImage* Alloc(void* buffer, const unsigned int& size,
+				const unsigned short& pixel_size, const bool& owns_data);
 
-			~BitmapImage();
+			//----------------------------------------------------------------------------------------------------
+			/// Frees the supplied BitmapImage object.
+			/// @param[in] obj			The object to free.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI static void Free(BitmapImage*& obj);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns a pointer to the pixel at index.
@@ -44,11 +44,30 @@ namespace XVTF_NS
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI void* operator[](const unsigned int& index);
 
+
+
+
+
+
+			 /////////////////////////////////////////////////////////////////
+			//        ____ _   __ ______ ______ ____   _   __ ___     __     //
+			//		 /  _// | / //_  __// ____// __ \ / | / //   |   / /     //
+			//       / / /  |/ /  / /  / __/  / /_/ //  |/ // /| |  / /      //
+			//     _/ / / /|  /  / /  / /___ / _, _// /|  // ___ | / /___    //
+			//    /___//_/ |_/  /_/  /_____//_/ |_|/_/ |_//_/  |_|/_____/    //
+			//																 //
+			 /////////////////////////////////////////////////////////////////
+
 		private:
-			void* _data;
-			unsigned int _size;
-			unsigned short _psize;
-			bool _managed;
+			BitmapImage() = default;
+			virtual ~BitmapImage() = default;
+			BitmapImage(const BitmapImage&) = delete;
+			BitmapImage(const BitmapImage&&) = delete;
+			BitmapImage& operator=(const BitmapImage&) = delete;
+			BitmapImage& operator=(const BitmapImage&&) = delete;
+
+			class __BitmapImageImpl;
+			__BitmapImageImpl* _impl;
 		};
 	}
 }

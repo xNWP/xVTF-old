@@ -1,14 +1,9 @@
 #ifndef XVTF_FILE_H__
 #define XVTF_FILE_H__
 
-#include "xVTF/xCodecs.h"
 #include "xVTF/xExports.h"
 #include "xVTF/xImageFile.h"
-#include "xVTF/xLUTs.h"
 #include "xVTF/xVTFStructs.h"
-
-#include <stdexcept>
-#include <memory>
 
 namespace XVTF_NS
 {
@@ -21,17 +16,17 @@ namespace XVTF_NS
 		{
 		public:
 			//----------------------------------------------------------------------------------------------------
-			/// Creates a VTFFile from the path to a valid vtf. Ensure that you call Free() when done with the object.
+			/// Creates a VTFFile from the path to a valid vtf file. Ensure that you call Free() when done with the object.
 			/// @param[in] FilePath				The complete path to the VTFFile.
 			/// @param[in] HeaderOnly			Whether or not to only load the header.
 			/// @return VTFFile*				A pointer to the VTFFile. Caller owns object.
 			/// @throws std::runtime_error		If the file could not be opened for some reason, or is corrupted in some way.
 			/// @throws std::invalid_argument	If the file is a version that this library does not support.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI static VTFFile* Alloc(const char* FilePath, const bool& HeaderOnly);
+			XVTFAPI static VTFFile* Alloc(const char* FilePath, const bool& HeaderOnly = false);
 
 			//----------------------------------------------------------------------------------------------------
-			/// Frees the object from memory.
+			/// Frees the VTFFile object from memory.
 			/// @param[in] obj					The object to free.
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI static void Free(VTFFile*& obj);

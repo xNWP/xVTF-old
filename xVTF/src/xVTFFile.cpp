@@ -1,5 +1,11 @@
 #include "xVTF/xVTFFile.h"
 
+#include "xVTF/xCodecs.h"
+#include "xVTF/xLUTs.h"
+
+#include <stdexcept>
+#include <memory>
+
 class XVTF_NS::Bitmap::VTFFile::__VTFFileImpl
 {
 public:
@@ -250,15 +256,15 @@ XVTF_NS::Bitmap::BitmapImage* XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::GetImage(
 
 	/* And let the decoder take it from here (for compressed formats) */
 	if (!COMP)
-		return new BitmapImage( ((void*)((char*)this->_highResData + START)), RES_FACTOR, BytesPerPixel, false );
+		return BitmapImage::Alloc( ((void*)((char*)this->_highResData + START)), RES_FACTOR, BytesPerPixel, false );
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1)
-		return new BitmapImage(Tools::Codecs::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+		return BitmapImage::Alloc(Tools::Codecs::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA)
-		return new BitmapImage(Tools::Codecs::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+		return BitmapImage::Alloc(Tools::Codecs::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT3)
-		return new BitmapImage(Tools::Codecs::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+		return BitmapImage::Alloc(Tools::Codecs::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT5)
-		return new BitmapImage(Tools::Codecs::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
+		return BitmapImage::Alloc(Tools::Codecs::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true);
 
 	throw std::runtime_error("Critical Error in XVTF_NS::Bitmap::BitmapImage* XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::GetImage(const unsigned int& MipLevel, const unsigned int& Frame, unsigned int& Face, const unsigned int& zLevel)");
 	return nullptr;
