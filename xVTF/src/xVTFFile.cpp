@@ -128,8 +128,14 @@ XVTF_NS::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, con
 	if (Header->startFrame == 0xFFFF) Header->startFrame = 0;
 	if (Header->version[1] < 3 && Header->version[0] == 7) Header->numResources = 0;
 
+	/* Finish here if HeaderOnly */
+	/* NOTE TO SELF: Stop commenting obvious shit */
+	/* NOTE TO SELF: Stop breaking the fourth wall ;) */
 	if (HeaderOnly)
+	{
+		fclose(File);
 		return;
+	}
 
 	/* Read all the low res data */
 	if (Header->lowResImageFormat != VTF::ImageFormat::NONE)

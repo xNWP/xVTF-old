@@ -52,6 +52,7 @@ namespace XVTF_NS
 			/// @param[in] zLevel						The z-depth/slice to load (if any), 0 being the first slice.
 			/// @return BitmapImage*					A pointer to the BitmapImage.
 			/// @throws std::out_of_range				If requested image does not exist for this file.
+			/// @throws std::runtime_error				If the requested image could not be returned for any other reason.
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI BitmapImage* GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
 				const unsigned int& Face = 0, const unsigned int& zLevel = 0);

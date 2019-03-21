@@ -11,6 +11,8 @@ public:
 
 	void* operator[](const unsigned int& index);
 
+	unsigned short GetBytesPerPixel() const;
+
 private:
 	void* _data;
 	unsigned int _size;
@@ -42,9 +44,19 @@ void* XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::operator[](const unsigned
 	return (void*)((char*)_data + index * _psize);
 }
 
+unsigned short XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::GetBytesPerPixel() const
+{
+	return this->_psize;
+}
+
 void* XVTF_NS::Bitmap::BitmapImage::operator[](const unsigned int& index)
 {
 	return (*this->_impl)[index];
+}
+
+unsigned short XVTF_NS::Bitmap::BitmapImage::GetBytesPerPixel() const
+{
+	return this->_impl->GetBytesPerPixel();
 }
 
 XVTF_NS::Bitmap::BitmapImage* XVTF_NS::Bitmap::BitmapImage::Alloc(void* buffer, const unsigned int& size,

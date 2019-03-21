@@ -44,6 +44,11 @@ namespace XVTF_NS
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI void* operator[](const unsigned int& index);
 
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the bytes per pixel of the given image.
+			/// @return unsigned short		The bytes per pixel.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned short GetBytesPerPixel() const;
 
 
 
