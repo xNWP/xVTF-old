@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-class XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl
+class xvtf::Bitmap::BitmapImage::__BitmapImageImpl
 {
 public:
 	__BitmapImageImpl(void* data, const unsigned int& size, const unsigned short& pixel_size, const bool& owns_data);
@@ -20,7 +20,7 @@ private:
 	bool _managed;
 };
 
-XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::__BitmapImageImpl(void* data, const unsigned int& size, const unsigned short& pixel_size, const bool& owns_data)
+xvtf::Bitmap::BitmapImage::__BitmapImageImpl::__BitmapImageImpl(void* data, const unsigned int& size, const unsigned short& pixel_size, const bool& owns_data)
 {
 	this->_data = data;
 	this->_size = size;
@@ -28,7 +28,7 @@ XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::__BitmapImageImpl(void* data, c
 	this->_managed = owns_data;
 }
 
-XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::~__BitmapImageImpl()
+xvtf::Bitmap::BitmapImage::__BitmapImageImpl::~__BitmapImageImpl()
 {
 	if (_managed)
 	{
@@ -36,7 +36,7 @@ XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::~__BitmapImageImpl()
 	}
 }
 
-void* XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::operator[](const unsigned int& index)
+void* xvtf::Bitmap::BitmapImage::__BitmapImageImpl::operator[](const unsigned int& index)
 {
 	if (index >= _size)
 		throw std::out_of_range("Index out of range.");
@@ -44,22 +44,22 @@ void* XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::operator[](const unsigned
 	return (void*)((char*)_data + index * _psize);
 }
 
-unsigned short XVTF_NS::Bitmap::BitmapImage::__BitmapImageImpl::GetBytesPerPixel() const
+unsigned short xvtf::Bitmap::BitmapImage::__BitmapImageImpl::GetBytesPerPixel() const
 {
 	return this->_psize;
 }
 
-void* XVTF_NS::Bitmap::BitmapImage::operator[](const unsigned int& index)
+void* xvtf::Bitmap::BitmapImage::operator[](const unsigned int& index)
 {
 	return (*this->_impl)[index];
 }
 
-unsigned short XVTF_NS::Bitmap::BitmapImage::GetBytesPerPixel() const
+unsigned short xvtf::Bitmap::BitmapImage::GetBytesPerPixel() const
 {
 	return this->_impl->GetBytesPerPixel();
 }
 
-XVTF_NS::Bitmap::BitmapImage* XVTF_NS::Bitmap::BitmapImage::Alloc(void* buffer, const unsigned int& size,
+xvtf::Bitmap::BitmapImage* xvtf::Bitmap::BitmapImage::Alloc(void* buffer, const unsigned int& size,
 	const unsigned short& pixel_size, const bool& owns_data)
 {
 	BitmapImage* r = new BitmapImage();
@@ -67,10 +67,13 @@ XVTF_NS::Bitmap::BitmapImage* XVTF_NS::Bitmap::BitmapImage::Alloc(void* buffer, 
 	return r;
 }
 
-void XVTF_NS::Bitmap::BitmapImage::Free(BitmapImage*& obj)
+void xvtf::Bitmap::BitmapImage::Free(BitmapImage*& obj)
 {
-	delete obj->_impl;
-	obj->_impl = nullptr;
-	delete obj;
-	obj = nullptr;
+	if (obj != nullptr)
+	{
+		delete obj->_impl;
+		obj->_impl = nullptr;
+		delete obj;
+		obj = nullptr;
+	}
 }

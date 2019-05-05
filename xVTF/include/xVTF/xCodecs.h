@@ -1,16 +1,15 @@
 #ifndef XVTF_CODECS_H__
 #define XVTF_CODECS_H__
 
-#include "xVTF/xMacros.h"
 #include "xVTF/xPixelFormats.h"
 
-namespace XVTF_NS
+namespace xvtf
 {
 	namespace Tools
 	{
 		namespace Codecs
 		{
-			using namespace XVTF_NS::Bitmap::PixelFormats;
+			using namespace xvtf::Bitmap::PixelFormats;
 
 			//----------------------------------------------------------------------------------------------------
 			/// Mixes two RGB888 values together.

@@ -8,8 +8,8 @@
     <ClInclude Include="include\xVTF\xImageFile.h" />
     <ClInclude Include="include\xVTF\xVTFStructs.h" />
     <ClInclude Include="include\xVTF\xLUTs.h" />
-    <ClInclude Include="include\xVTF\xMacros.h" />
     <ClInclude Include="include\xVTF\xPixelFormats.h" />
+    <ClInclude Include="include\xVTF\xVTFHeaders.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\xVTFFile.cpp" />

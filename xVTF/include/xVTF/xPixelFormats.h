@@ -1,9 +1,7 @@
 #ifndef XVTF_PIXELFORMATS_H__
 #define XVTF_PIXELFORMATS_H__
 
-#include "xVTF/xMacros.h"
-
-namespace XVTF_NS
+namespace xvtf
 {
 	namespace Bitmap
 	{

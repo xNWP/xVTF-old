@@ -1,60 +1,60 @@
 #include "xVTF/xCLI.h"
 
-XVTF_NS::CLI::ImageFile::VTF::VTFResource::VTFResource(const XVTF_NS::Bitmap::VTF::VTFResource_r &res)
+xvtf::CLI::ImageFile::VTF::VTFResource::VTFResource(const xvtf::Bitmap::VTF::VTFResource_r &res)
 {
-	this->_raw = new XVTF_NS::Bitmap::VTF::VTFResource_r;
+	this->_raw = new xvtf::Bitmap::VTF::VTFResource_r;
 	*this->_raw = res;
 }
 
-XVTF_NS::CLI::ImageFile::VTF::VTFResource::~VTFResource()
+xvtf::CLI::ImageFile::VTF::VTFResource::~VTFResource()
 {
 	this->!VTFResource();
 }
 
-XVTF_NS::CLI::ImageFile::VTF::VTFResource::!VTFResource()
+xvtf::CLI::ImageFile::VTF::VTFResource::!VTFResource()
 {
 	delete this->_raw;
 }
 
-unsigned int XVTF_NS::CLI::ImageFile::VTF::VTFResource::GetIntType()
+unsigned int xvtf::CLI::ImageFile::VTF::VTFResource::GetIntType()
 {
 	return this->_raw->eType;
 }
 
-System::String^ XVTF_NS::CLI::ImageFile::VTF::VTFResource::GetCharCode()
+System::String^ xvtf::CLI::ImageFile::VTF::VTFResource::GetCharCode()
 {
 	return gcnew System::String(reinterpret_cast<const char*>(this->_raw->chTypeBytes), 0, 4);
 }
 
-unsigned int XVTF_NS::CLI::ImageFile::VTF::VTFResource::GetResData()
+unsigned int xvtf::CLI::ImageFile::VTF::VTFResource::GetResData()
 {
 	return this->_raw->resData;
 }
 
-XVTF_NS::CLI::ImageFile::VTFFile::VTFFile(const System::String^ filename, const System::Boolean HeaderOnly)
+xvtf::CLI::ImageFile::VTFFile::VTFFile(const System::String^ filename, const System::Boolean HeaderOnly)
 {
 	using namespace System::Runtime::InteropServices;
 	System::String^ loc = const_cast<System::String^>(filename);
 	System::IntPtr PtrToNative = Marshal::StringToHGlobalAnsi(loc);
 
-	this->_impl =  XVTF_NS::Bitmap::VTFFile::Alloc(static_cast<const char*>(PtrToNative.ToPointer()), HeaderOnly);
+	this->_impl =  xvtf::Bitmap::VTFFile::Alloc(static_cast<const char*>(PtrToNative.ToPointer()), HeaderOnly);
 	this->_header = this->_impl->GetHeader();
 	Marshal::FreeHGlobal(PtrToNative);
 }
 
-XVTF_NS::CLI::ImageFile::VTFFile::~VTFFile()
+xvtf::CLI::ImageFile::VTFFile::~VTFFile()
 {
 	this->!VTFFile();
 }
 
-XVTF_NS::CLI::ImageFile::VTFFile::!VTFFile()
+xvtf::CLI::ImageFile::VTFFile::!VTFFile()
 {
-	pin_ptr<XVTF_NS::Bitmap::VTFFile*> ptr = &this->_impl;
-	auto rawPtr = (XVTF_NS::Bitmap::VTFFile*)ptr;
-	XVTF_NS::Bitmap::VTFFile::Free(rawPtr);
+	pin_ptr<xvtf::Bitmap::VTFFile*> ptr = &this->_impl;
+	auto rawPtr = (xvtf::Bitmap::VTFFile*)ptr;
+	xvtf::Bitmap::VTFFile::Free(rawPtr);
 }
 
-array<unsigned int>^ XVTF_NS::CLI::ImageFile::VTFFile::GetVersion()
+array<unsigned int>^ xvtf::CLI::ImageFile::VTFFile::GetVersion()
 {
 	array<unsigned int>^ rval = gcnew array<unsigned int>(2);
 	rval[0] = this->_header->version[0];
@@ -62,32 +62,32 @@ array<unsigned int>^ XVTF_NS::CLI::ImageFile::VTFFile::GetVersion()
 	return rval;
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetWidth()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetWidth()
 {
 	return this->_header->width;
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetHeight()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetHeight()
 {
 	return this->_header->height;
 }
 
-unsigned int XVTF_NS::CLI::ImageFile::VTFFile::GetFlags()
+unsigned int xvtf::CLI::ImageFile::VTFFile::GetFlags()
 {
 	return static_cast<unsigned int>(this->_header->flags);
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetNumberOfFrames()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetNumberOfFrames()
 {
 	return this->_header->numFrames;
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetStartFrame()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetStartFrame()
 {
 	return this->_header->startFrame;
 }
 
-array<float>^ XVTF_NS::CLI::ImageFile::VTFFile::GetReflectivity()
+array<float>^ xvtf::CLI::ImageFile::VTFFile::GetReflectivity()
 {
 	array<float>^ rval = gcnew array<float>(3);
 	rval[0] = this->_header->reflectivity[0];
@@ -96,62 +96,62 @@ array<float>^ XVTF_NS::CLI::ImageFile::VTFFile::GetReflectivity()
 	return rval;
 }
 
-float XVTF_NS::CLI::ImageFile::VTFFile::GetBumpScale()
+float xvtf::CLI::ImageFile::VTFFile::GetBumpScale()
 {
 	return this->_header->bumpScale;
 }
 
-XVTF_NS::CLI::ImageFile::VTF::ImageFormat XVTF_NS::CLI::ImageFile::VTFFile::GetFormat()
+xvtf::CLI::ImageFile::VTF::ImageFormat xvtf::CLI::ImageFile::VTFFile::GetFormat()
 {
-	return static_cast<XVTF_NS::CLI::ImageFile::VTF::ImageFormat>(this->_header->imageFormat);
+	return static_cast<xvtf::CLI::ImageFile::VTF::ImageFormat>(this->_header->imageFormat);
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetNumberOfMipLevels()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetNumberOfMipLevels()
 {
 	return this->_header->numMipLevels;
 }
 
-XVTF_NS::CLI::ImageFile::VTF::ImageFormat XVTF_NS::CLI::ImageFile::VTFFile::GetLowResFormat()
+xvtf::CLI::ImageFile::VTF::ImageFormat xvtf::CLI::ImageFile::VTFFile::GetLowResFormat()
 {
-	return static_cast<XVTF_NS::CLI::ImageFile::VTF::ImageFormat>(this->_header->lowResImageFormat);
+	return static_cast<xvtf::CLI::ImageFile::VTF::ImageFormat>(this->_header->lowResImageFormat);
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetLowResWidth()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetLowResWidth()
 {
 	return this->_header->lowResImageWidth;
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetLowResHeight()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetLowResHeight()
 {
 	return this->_header->lowResImageHeight;
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetDepth()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetDepth()
 {
 	return this->_header->depth;
 }
 
-unsigned short XVTF_NS::CLI::ImageFile::VTFFile::GetNumberOfResources()
+unsigned short xvtf::CLI::ImageFile::VTFFile::GetNumberOfResources()
 {
 	return this->_header->numResources;
 }
 
-XVTF_NS::CLI::ImageFile::VTF::VTFResource^ XVTF_NS::CLI::ImageFile::VTFFile::GetResource(const int index)
+xvtf::CLI::ImageFile::VTF::VTFResource^ xvtf::CLI::ImageFile::VTFFile::GetResource(const int index)
 {
 	// Out of range case
 	if (index > this->GetNumberOfResources())
 		return nullptr;
 
-	return gcnew XVTF_NS::CLI::ImageFile::VTF::VTFResource(this->_header->resources[index]);
+	return gcnew xvtf::CLI::ImageFile::VTF::VTFResource(this->_header->resources[index]);
 }
 
-unsigned int XVTF_NS::CLI::ImageFile::VTFFile::GetCRC()
+unsigned int xvtf::CLI::ImageFile::VTFFile::GetCRC()
 {
-	auto CRC = this->_impl->GetResourceType(static_cast<unsigned int>(XVTF_NS::CLI::ImageFile::VTF::StockResourceTypes::CRC));
+	auto CRC = this->_impl->GetResourceType(static_cast<unsigned int>(xvtf::CLI::ImageFile::VTF::StockResourceTypes::CRC));
 	return CRC == nullptr ? 0 : CRC->resData;
 }
 
-XVTF_NS::CLI::ImageFile::VTF::VTFResource^ XVTF_NS::CLI::ImageFile::VTFFile::GetResourceType(const unsigned int type)
+xvtf::CLI::ImageFile::VTF::VTFResource^ xvtf::CLI::ImageFile::VTFFile::GetResourceType(const unsigned int type)
 {
 	for (unsigned int i = 0; i < this->GetNumberOfResources(); i++)
 	{
@@ -162,7 +162,7 @@ XVTF_NS::CLI::ImageFile::VTF::VTFResource^ XVTF_NS::CLI::ImageFile::VTFFile::Get
 	return nullptr;
 }
 
-array<XVTF_NS::CLI::Codec::RGB888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageRGB888(const unsigned int MipLevel, const unsigned int Frame,
+array<xvtf::CLI::Codec::RGB888>^ xvtf::CLI::ImageFile::VTFFile::GetImageRGB888(const unsigned int MipLevel, const unsigned int Frame,
 	const unsigned int Face, const unsigned int zLevel)
 {
 	auto NativeData = this->_impl->GetImage(MipLevel, Frame, Face, zLevel);
@@ -177,12 +177,12 @@ array<XVTF_NS::CLI::Codec::RGB888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageRG
 		rval[i].B = *((char*)pixel + 2);
 	}
 
-	XVTF_NS::Bitmap::BitmapImage::Free(NativeData);
+	xvtf::Bitmap::BitmapImage::Free(NativeData);
 
 	return rval;
 }
 
-array<XVTF_NS::CLI::Codec::RGBA8888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImageRGBA8888(const unsigned int MipLevel, const unsigned int Frame,
+array<xvtf::CLI::Codec::RGBA8888>^ xvtf::CLI::ImageFile::VTFFile::GetImageRGBA8888(const unsigned int MipLevel, const unsigned int Frame,
 	const unsigned int Face, const unsigned int zLevel)
 {
 	void* NativeData = this->_impl->GetImage(MipLevel, Frame, Face, zLevel);
@@ -201,10 +201,10 @@ array<XVTF_NS::CLI::Codec::RGBA8888>^ XVTF_NS::CLI::ImageFile::VTFFile::GetImage
 	return rval;
 }
 
-array<XVTF_NS::CLI::ImageFile::Resolution>^ XVTF_NS::CLI::ImageFile::VTFFile::GetResolutions()
+array<xvtf::CLI::ImageFile::Resolution>^ xvtf::CLI::ImageFile::VTFFile::GetResolutions()
 {
-	const XVTF_NS::Bitmap::Resolution* RES = this->_impl->GetResolutions();
-	array<XVTF_NS::CLI::ImageFile::Resolution>^ RVAL = gcnew array<XVTF_NS::CLI::ImageFile::Resolution>(_header->numMipLevels);
+	const xvtf::Bitmap::Resolution* RES = this->_impl->GetResolutions();
+	array<xvtf::CLI::ImageFile::Resolution>^ RVAL = gcnew array<xvtf::CLI::ImageFile::Resolution>(_header->numMipLevels);
 
 	for (unsigned int i = 0; i < this->_header->numMipLevels; i++)
 	{

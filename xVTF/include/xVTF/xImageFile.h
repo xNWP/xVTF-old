@@ -2,9 +2,8 @@
 #define XVTF_IMAGEFILE_H__
 
 #include "xVTF/xExports.h"
-#include "xVTF/xMacros.h"
 
-namespace XVTF_NS
+namespace xvtf
 {
 	namespace Bitmap
 	{

@@ -158,7 +158,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\xVTF\xCLI.h" />
+    <ClInclude Include="include\xVTF\xCLI_VTF.h" />
+    <ClInclude Include="include\xVTF\xCLI_PixelFormats.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\xCLI.cpp" />

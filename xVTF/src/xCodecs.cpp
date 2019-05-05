@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-XVTF_NS::Bitmap::PixelFormats::RGB888 XVTF_NS::Tools::Codecs::Mix(const XVTF_NS::Bitmap::PixelFormats::RGB888& _A, const XVTF_NS::Bitmap::PixelFormats::RGB888& _B, const unsigned int& PartsA, const unsigned int& PartsB)
+xvtf::Bitmap::PixelFormats::RGB888 xvtf::Tools::Codecs::Mix(const xvtf::Bitmap::PixelFormats::RGB888& _A, const xvtf::Bitmap::PixelFormats::RGB888& _B, const unsigned int& PartsA, const unsigned int& PartsB)
 {
 	float A_R = static_cast<float>(_A.R);
 	float A_G = static_cast<float>(_A.G);
@@ -29,7 +29,7 @@ XVTF_NS::Bitmap::PixelFormats::RGB888 XVTF_NS::Tools::Codecs::Mix(const XVTF_NS:
 	if (R_B > 255)
 		R_B = 255;
 
-	XVTF_NS::Bitmap::PixelFormats::RGB888 RVAL;
+	xvtf::Bitmap::PixelFormats::RGB888 RVAL;
 	RVAL.R = static_cast<unsigned char>(R_R);
 	RVAL.G = static_cast<unsigned char>(R_G);
 	RVAL.B = static_cast<unsigned char>(R_B);
@@ -37,7 +37,7 @@ XVTF_NS::Bitmap::PixelFormats::RGB888 XVTF_NS::Tools::Codecs::Mix(const XVTF_NS:
 	return RVAL;
 }
 
-XVTF_NS::Bitmap::PixelFormats::RGBA8888 XVTF_NS::Tools::Codecs::Mix(const XVTF_NS::Bitmap::PixelFormats::RGBA8888& _A, const XVTF_NS::Bitmap::PixelFormats::RGBA8888& _B, const unsigned int& PartsA, const unsigned int& PartsB)
+xvtf::Bitmap::PixelFormats::RGBA8888 xvtf::Tools::Codecs::Mix(const xvtf::Bitmap::PixelFormats::RGBA8888& _A, const xvtf::Bitmap::PixelFormats::RGBA8888& _B, const unsigned int& PartsA, const unsigned int& PartsB)
 {
 	float A_R = static_cast<float>(_A.R);
 	float A_G = static_cast<float>(_A.G);
@@ -69,7 +69,7 @@ XVTF_NS::Bitmap::PixelFormats::RGBA8888 XVTF_NS::Tools::Codecs::Mix(const XVTF_N
 	if (R_A > 255)
 		R_A = 255;
 
-	XVTF_NS::Tools::Codecs::RGBA8888 RVAL;
+	xvtf::Tools::Codecs::RGBA8888 RVAL;
 	RVAL.R = static_cast<unsigned char>(R_R);
 	RVAL.G = static_cast<unsigned char>(R_G);
 	RVAL.B = static_cast<unsigned char>(R_B);
@@ -78,7 +78,7 @@ XVTF_NS::Bitmap::PixelFormats::RGBA8888 XVTF_NS::Tools::Codecs::Mix(const XVTF_N
 	return RVAL;
 }
 
-void* XVTF_NS::Tools::Codecs::DecompressDXT1(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
+void* xvtf::Tools::Codecs::DecompressDXT1(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
 {
 	const unsigned int WIDTH = width < 4 ? 4 : width;
 	const unsigned int HEIGHT = height < 4 ? 4 : height;
@@ -145,7 +145,7 @@ void* XVTF_NS::Tools::Codecs::DecompressDXT1(void* buffer, const unsigned int& o
 	return (void*)rBuffer;
 }
 
-void* XVTF_NS::Tools::Codecs::DecompressDXT1_ONEBITALPHA(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
+void* xvtf::Tools::Codecs::DecompressDXT1_ONEBITALPHA(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
 {
 	const unsigned int WIDTH = width < 4 ? 4 : width;
 	const unsigned int HEIGHT = height < 4 ? 4 : height;
@@ -225,7 +225,7 @@ void* XVTF_NS::Tools::Codecs::DecompressDXT1_ONEBITALPHA(void* buffer, const uns
 	return (void*)rBuffer;
 }
 
-void* XVTF_NS::Tools::Codecs::DecompressDXT3(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
+void* xvtf::Tools::Codecs::DecompressDXT3(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
 {
 	const unsigned int WIDTH = width < 4 ? 4 : width;
 	const unsigned int HEIGHT = height < 4 ? 4 : height;
@@ -304,7 +304,7 @@ void* XVTF_NS::Tools::Codecs::DecompressDXT3(void* buffer, const unsigned int& o
 	return (void*)rBuffer;
 }
 
-void* XVTF_NS::Tools::Codecs::DecompressDXT5(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
+void* xvtf::Tools::Codecs::DecompressDXT5(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
 {
 #pragma warning( push )
 #pragma warning( disable : 4838 4309)

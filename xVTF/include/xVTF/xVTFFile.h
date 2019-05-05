@@ -5,7 +5,7 @@
 #include "xVTF/xImageFile.h"
 #include "xVTF/xVTFStructs.h"
 
-namespace XVTF_NS
+namespace xvtf
 {
 	namespace Bitmap
 	{
@@ -32,17 +32,20 @@ namespace XVTF_NS
 			XVTFAPI static void Free(VTFFile*& obj);
 
 			//----------------------------------------------------------------------------------------------------
-			/// Returns the header for the VTF file.
-			/// @return VTFFileHeader*				The aligned header struct.
+			/// Returns a resource by its index.
+			/// @param[in] index						The index of the resource.
+			/// @return bool							True if the value exists.
+			/// @throws std::out_of_range				If the index is larger than the number of resources.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI VTF::VTFFileHeader* GetHeader();
+			XVTFAPI VTFResource GetResourceIndex(const unsigned int& index);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns a resource by its integer type.
 			/// @param[in] type							The type of the resource to return (hint: use the StockResourceTypes).
-			/// @return VTFResource						A pointer to the grabbed resource, or nullptr if it doesn't exist.
+			/// @param[out] value						Stores the returned value.
+			/// @return bool							True if the value exists.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI VTF::VTFResource* GetResourceType(const unsigned int& type);
+			XVTFAPI bool GetResourceType(const VTF::StockResourceTypes& type, unsigned int& value);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns the image data. Uncompressed formats are first decoded.
@@ -50,18 +53,19 @@ namespace XVTF_NS
 			/// @param[in] Frame						The frame to load, 0 being the first frame.
 			/// @param[in] Face							The face to load (if the image contains any), 0 being the first face.
 			/// @param[in] zLevel						The z-depth/slice to load (if any), 0 being the first slice.
-			/// @return BitmapImage*					A pointer to the BitmapImage.
+			/// @return BitmapImage						The BitmapImage.
 			/// @throws std::out_of_range				If requested image does not exist for this file.
 			/// @throws std::runtime_error				If the requested image could not be returned for any other reason.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI BitmapImage* GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
+			XVTFAPI BitmapImage& GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
 				const unsigned int& Face = 0, const unsigned int& zLevel = 0);
 
 			//----------------------------------------------------------------------------------------------------
-			/// Returns an array of all the resolutions contained in the VTF : 0 being the largest MipMap.
-			/// @return Resolution*		The resolution array.
+			/// Returns the resolution at the specified Mipmap level.
+			/// @param[in] MipLevel		The Mipmap level to load.
+			/// @return Resolution		The resolution.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI const Resolution* GetResolutions() const;
+			XVTFAPI Resolution GetResolution(const unsigned int& MipLevel) const;
 
 
 
