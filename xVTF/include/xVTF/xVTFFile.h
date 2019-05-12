@@ -19,11 +19,10 @@ namespace xvtf
 			/// Creates a VTFFile from the path to a valid vtf file. Ensure that you call Free() when done with the object.
 			/// @param[in] FilePath				The complete path to the VTFFile.
 			/// @param[in] HeaderOnly			Whether or not to only load the header.
-			/// @return VTFFile*				A pointer to the VTFFile. Caller owns object.
-			/// @throws std::runtime_error		If the file could not be opened for some reason, or is corrupted in some way.
-			/// @throws std::invalid_argument	If the file is a version that this library does not support.
+			/// @param[out] xvtferrno			The error number if an error occured, can be nullptr.
+			/// @return VTFFile*				A pointer to the VTFFile, or nullptr if an error occured. Caller owns object.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI static VTFFile* Alloc(const char* FilePath, const bool& HeaderOnly = false);
+			XVTFAPI static VTFFile* Alloc(const char* FilePath, const bool& HeaderOnly = false, unsigned int * const & xvtferrno = nullptr);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Frees the VTFFile object from memory.
@@ -34,10 +33,10 @@ namespace xvtf
 			//----------------------------------------------------------------------------------------------------
 			/// Returns a resource by its index.
 			/// @param[in] index						The index of the resource.
+			/// @param[out] value						Stores the returned value.
 			/// @return bool							True if the value exists.
-			/// @throws std::out_of_range				If the index is larger than the number of resources.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI VTFResource GetResourceIndex(const unsigned int& index);
+			XVTFAPI bool GetResourceIndex(const unsigned int& index, unsigned int& value) const;
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns a resource by its integer type.
@@ -45,27 +44,30 @@ namespace xvtf
 			/// @param[out] value						Stores the returned value.
 			/// @return bool							True if the value exists.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI bool GetResourceType(const VTF::StockResourceTypes& type, unsigned int& value);
+			XVTFAPI bool GetResourceType(const unsigned int& type, unsigned int& value) const;
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns the image data. Uncompressed formats are first decoded.
+			/// @param[out] bmp							The returned image. (ensure Free() is called once done with the image)
+			/// @param[out] xvtferrno					The error number if an error occured, can be nullptr.
 			/// @param[in] MipLevel						The mip to load, 0 being the largest.
 			/// @param[in] Frame						The frame to load, 0 being the first frame.
 			/// @param[in] Face							The face to load (if the image contains any), 0 being the first face.
 			/// @param[in] zLevel						The z-depth/slice to load (if any), 0 being the first slice.
-			/// @return BitmapImage						The BitmapImage.
-			/// @throws std::out_of_range				If requested image does not exist for this file.
-			/// @throws std::runtime_error				If the requested image could not be returned for any other reason.
+			/// @return bool							True if the BitmapImage was grabbed successfully.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI BitmapImage& GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
+			XVTFAPI bool GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno = nullptr,
+				const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
 				const unsigned int& Face = 0, const unsigned int& zLevel = 0);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns the resolution at the specified Mipmap level.
+			/// @param[out] Res			The returned resolution.
 			/// @param[in] MipLevel		The Mipmap level to load.
-			/// @return Resolution		The resolution.
+			/// @param[out] xvtferrno	The error number if an error occured, can be nullptr.
+			/// @return bool			True if the resolution was successfully grabbed.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI Resolution GetResolution(const unsigned int& MipLevel) const;
+			XVTFAPI bool GetResolution(Resolution* const & res, const unsigned int& MipLevel = 0, unsigned int * const & xvtferrno = nullptr) const;
 
 
 

@@ -10,8 +10,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xVTF Test", "xVTF Test\xVTF
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF} = {22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xVTF CLI Wrapper", "xVTF CLI Wrapper\xVTF CLI Wrapper.vcxproj", "{1E8DDC69-7800-41F9-89C0-354C302FD58D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|x64 = Debug DLL|x64
@@ -56,14 +54,6 @@ Global
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release Static Library|x64.Build.0 = Release Static Library|x64
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release Static Library|x86.ActiveCfg = Release Static Library|Win32
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release Static Library|x86.Build.0 = Release Static Library|Win32
-		{1E8DDC69-7800-41F9-89C0-354C302FD58D}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
-		{1E8DDC69-7800-41F9-89C0-354C302FD58D}.Debug DLL|x86.ActiveCfg = Debug DLL|Win32
-		{1E8DDC69-7800-41F9-89C0-354C302FD58D}.Debug Static Library|x64.ActiveCfg = Debug DLL|x64
-		{1E8DDC69-7800-41F9-89C0-354C302FD58D}.Debug Static Library|x86.ActiveCfg = Debug DLL|Win32
-		{1E8DDC69-7800-41F9-89C0-354C302FD58D}.Release DLL|x64.ActiveCfg = Release DLL|x64
-		{1E8DDC69-7800-41F9-89C0-354C302FD58D}.Release DLL|x86.ActiveCfg = Release DLL|Win32
-		{1E8DDC69-7800-41F9-89C0-354C302FD58D}.Release Static Library|x64.ActiveCfg = Release DLL|x64
-		{1E8DDC69-7800-41F9-89C0-354C302FD58D}.Release Static Library|x86.ActiveCfg = Release DLL|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

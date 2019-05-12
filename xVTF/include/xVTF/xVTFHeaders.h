@@ -87,15 +87,15 @@ namespace xvtf
 		//----------------------------------------------------------------------------------------------------
 		typedef VTFFileHeader_7_5_r VTFFileHeader_r;
 
-#pragma pack(pop)
-
 		//----------------------------------------------------------------------------------------------------
-		/// General VTF File Header Struct (Aligned)
+		/// General VTF File Header Struct (Unaligned)
 		//----------------------------------------------------------------------------------------------------
 		struct VTFFileHeader : public VTFFileHeader_r
 		{
 			// No Extensions
 		};
+
+#pragma pack(pop)
 	}
 }
 

@@ -1,5 +1,6 @@
 #include "xVTF/xImageFile.h"
 
+#include <cmath>
 #include <stdexcept>
 
 class xvtf::Bitmap::BitmapImage::__BitmapImageImpl
@@ -10,8 +11,6 @@ public:
 	~__BitmapImageImpl();
 
 	void* operator[](const unsigned int& index);
-
-	unsigned short GetBytesPerPixel() const;
 
 private:
 	void* _data;
@@ -39,24 +38,14 @@ xvtf::Bitmap::BitmapImage::__BitmapImageImpl::~__BitmapImageImpl()
 void* xvtf::Bitmap::BitmapImage::__BitmapImageImpl::operator[](const unsigned int& index)
 {
 	if (index >= _size)
-		throw std::out_of_range("Index out of range.");
+		return nullptr;
 
-	return (void*)((char*)_data + index * _psize);
-}
-
-unsigned short xvtf::Bitmap::BitmapImage::__BitmapImageImpl::GetBytesPerPixel() const
-{
-	return this->_psize;
+	return (void*)((char*)_data + (unsigned int)std::round(index * _psize));
 }
 
 void* xvtf::Bitmap::BitmapImage::operator[](const unsigned int& index)
 {
 	return (*this->_impl)[index];
-}
-
-unsigned short xvtf::Bitmap::BitmapImage::GetBytesPerPixel() const
-{
-	return this->_impl->GetBytesPerPixel();
 }
 
 xvtf::Bitmap::BitmapImage* xvtf::Bitmap::BitmapImage::Alloc(void* buffer, const unsigned int& size,

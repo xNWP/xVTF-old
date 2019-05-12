@@ -2,6 +2,7 @@
 
 #include "xVTF/xCodecs.h"
 #include "xVTF/xLUTs.h"
+#include "xVTF/xVTFError.h"
 #include "xVTF/xVTFHeaders.h"
 #include "xVTF/xVTFStructs.h"
 
@@ -12,33 +13,30 @@
 class xvtf::Bitmap::VTFFile::__VTFFileImpl
 {
 public:
-	__VTFFileImpl(const char* FilePath, const bool& HeaderOnly);
+	__VTFFileImpl(const char* FilePath, const bool& HeaderOnly, unsigned int * const & xvtferrno);
 	virtual ~__VTFFileImpl();
 
-	VTFResource GetResourceIndex(const unsigned int& index);
-	bool GetResourceType(const VTF::StockResourceTypes& type, unsigned int& value);
-	BitmapImage& GetImage(const unsigned int& MipLevel = 0, const unsigned int& Frame = 0, const unsigned int& Face = 0, const unsigned int& zLevel = 0);
-	Resolution GetResolution(const unsigned int& index) const;
+	bool GetResourceIndex(const unsigned int& index, unsigned int& value) const;
+	bool GetResourceType(const unsigned int& type, unsigned int& value) const;
+	bool GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno, const unsigned int& MipLevel, const unsigned int& Frame, const unsigned int& Face, const unsigned int& zLevel);
+	bool GetResolution(Resolution* const & res, const unsigned int& index, unsigned int * const & xvtferrno) const;
 
 private:
-	std::shared_ptr<VTFFileHeader_r> _headerRaw;
-	std::shared_ptr<VTFFileHeader> _headerAligned;
-	Resolution* _mipMapResolutions;
+	VTFFileHeader _header;
+	std::vector<Resolution> _mipMapResolutions;
 	void* _highResData;
 	void* _lowResData;
 	float _texelSize;
 	std::vector<BitmapImage*> _storedImages;
 };
 
-xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const bool& HeaderOnly)
+xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const bool& HeaderOnly, unsigned int * const & xvtferrno)
 {
 	auto File = fopen(FilePath, "rb");
 	if (File == nullptr)
 	{
-		std::string err = "Error opening file '";
-		err += FilePath; err += "': ";
-		err += strerror(errno);
-		throw std::runtime_error(err);
+		XVTF_SETERROR(xvtferrno, ERRORCODE::SYSTEM_FILE_ERROR);
+		return;
 	}
 
 	/* Check that the Four Character Code is in fact VTF\0 */
@@ -47,9 +45,8 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 
 	if (strcmp(FourCC, "VTF"))
 	{
-		std::string err = "Error opening file '";
-		err += FilePath; err += "': Not a valid VTF file. FourCC was not VTF\\0.";
-		throw std::runtime_error(err);
+		XVTF_SETERROR(xvtferrno, ERRORCODE::NOT_A_VTF_FILE);
+		return;
 	}
 
 	/* Get Version */
@@ -59,9 +56,8 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	if (Version[0] > XVTF_VTF_MAX_VERSION_MAJOR ||
 		Version[1] > XVTF_VTF_MAX_VERSION_MINOR)
 	{
-		std::string err = "Error opening file '";
-		err += FilePath; err += "': Version of VTF not supported.";
-		throw std::invalid_argument(err);
+		XVTF_SETERROR(xvtferrno, ERRORCODE::UNSUPPORTED_FILE_VERSION);
+		return;
 	}
 
 	/* Get Header Size */
@@ -71,76 +67,65 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	/* Feed all of this information into the VTF header struct */
 	_fseeki64(File, 0, SEEK_SET);
 
-	this->_headerRaw = std::make_shared<VTFFileHeader_r>();
-	if (HeaderSize > sizeof(*this->_headerRaw))
+	VTFFileHeader_r RawHeader;
+	if (HeaderSize > sizeof(RawHeader))
 	{
-		std::string err = "Error opening file '";
-		err += FilePath; err += "': HeaderSize too large, possibly corrupt file?";
-		throw std::runtime_error(err);
+		XVTF_SETERROR(xvtferrno, ERRORCODE::HEADER_SIZE_TOO_LARGE);
+		return;
 	}
 
-	fread(this->_headerRaw.get(), 1, HeaderSize, File);
-	this->_headerAligned = std::static_pointer_cast<VTFFileHeader>(this->_headerRaw);
-
-	auto Header = this->_headerAligned;
+	fread(&RawHeader, 1, HeaderSize, File);
+	this->_header = *reinterpret_cast<VTFFileHeader*>(&RawHeader);
 
 	/* Determine Texel Size (Bytes Per Pixel) */
-	this->_texelSize = Tools::LUT::ImageFormatBPP[static_cast<unsigned int>(Header->imageFormat)];
+	this->_texelSize = Tools::LUT::ImageFormatBPP[static_cast<unsigned int>(this->_header.imageFormat)];
 
 	/* Determine LowResImage start (thumbnail) */
 	unsigned int LowResStart;
-	if (Header->lowResImageFormat == VTF::ImageFormat::NONE)
+	if (this->_header.lowResImageFormat == VTF::ImageFormat::NONE)
 	{
 		LowResStart = -1;
 	}
-	else if (Header->version[1] < 3)
+	else if (this->_header.version[1] < 3)
 	{
-		LowResStart = Header->headerSize;
+		LowResStart = this->_header.headerSize;
 	}
-	else
+	else if (!GetResourceType((unsigned int)VTF::StockResourceTypes::LOW_RES_IMAGE, LowResStart))
 	{
-		if (!GetResourceType(VTF::StockResourceTypes::LOW_RES_IMAGE, LowResStart))
-		{
-			std::string err = "Error opening file '";
-			err += FilePath; err += "': Couldn't load low resolution start index, possibly corrupt file?";
-			throw std::runtime_error(err);
-		}
+		XVTF_SETERROR(xvtferrno, ERRORCODE::MISSING_IMAGE_DATA_MARKER);
+		return;
 	}
 
 	/* Determine HighResImage start */
 	unsigned int HighResStart;
-	if (Header->version[1] < 3)
+	if (this->_header.version[1] < 3)
 	{
-		HighResStart = static_cast<unsigned int>(Header->headerSize +
-			(Header->lowResImageFormat == VTF::ImageFormat::NONE ? 0 : Header->lowResImageWidth * Header->lowResImageHeight * 0.5f));
+		HighResStart = static_cast<unsigned int>(this->_header.headerSize +
+			(this->_header.lowResImageFormat == VTF::ImageFormat::NONE ? 0 : this->_header.lowResImageWidth * this->_header.lowResImageHeight * 0.5f));
 	}
-	else
+	else if (!GetResourceType((unsigned int)VTF::StockResourceTypes::HIGH_RES_IMAGE, HighResStart))
 	{
-		if (!GetResourceType(VTF::StockResourceTypes::HIGH_RES_IMAGE, HighResStart))
-		{
-			std::string err = "Error opening file '";
-			err += FilePath; err += "': Couldn't load high resolution start index, possibly corrupt file?";
-			throw std::runtime_error(err);
-		}
+		XVTF_SETERROR(xvtferrno, ERRORCODE::MISSING_IMAGE_DATA_MARKER);
+		return;
 	}
 
 	/* Fill MipLevel Resolutions */
-	this->_mipMapResolutions = new Resolution[Header->numMipLevels];
-	for (unsigned int i = Header->numMipLevels; i > 0; --i)
+	this->_mipMapResolutions.resize(this->_header.numMipLevels);
+	for (auto i = this->_header.numMipLevels; i > 0; --i)
 	{
-		unsigned int w = static_cast<unsigned int>(Header->width / std::pow(2, i - 1));
-		unsigned int h = static_cast<unsigned int>(Header->height / std::pow(2, i - 1));
+		unsigned int w = static_cast<unsigned int>(this->_header.width / std::pow(2, i - 1));
+		unsigned int h = static_cast<unsigned int>(this->_header.height / std::pow(2, i - 1));
 		w == 0 ? w = 1 : w = w;
 		h == 0 ? h = 1 : h = h;
 		this->_mipMapResolutions[i - 1] = { w, h };
 	}
 
 	/* Normalize Header Values */
-	if (Header->depth == 0 || (Header->version[1] < 2 && Header->version[0] == 7)) Header->depth = 1;
-	if (Header->numFrames == 0) Header->numFrames = 1;
-	if (Header->numMipLevels == 0) Header->numMipLevels = 1;
-	if (Header->startFrame == 0xFFFF) Header->startFrame = 0;
-	if (Header->version[1] < 3 && Header->version[0] == 7) Header->numResources = 0;
+	if (this->_header.depth == 0 || (this->_header.version[1] < 2 && this->_header.version[0] == 7)) this->_header.depth = 1;
+	if (this->_header.numFrames == 0) this->_header.numFrames = 1;
+	if (this->_header.numMipLevels == 0) this->_header.numMipLevels = 1;
+	if (this->_header.startFrame == 0xFFFF) this->_header.startFrame = 0;
+	if (this->_header.version[1] < 3 && this->_header.version[0] == 7) this->_header.numResources = 0;
 
 	/* Finish here if HeaderOnly */
 	/* NOTE TO SELF: Stop commenting obvious shit */
@@ -152,10 +137,10 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	}
 
 	/* Read all the low res data */
-	if (Header->lowResImageFormat != VTF::ImageFormat::NONE)
+	if (this->_header.lowResImageFormat != VTF::ImageFormat::NONE)
 	{
-		auto size = static_cast<unsigned int>((Header->lowResImageWidth < 4 ? 4 : Header->lowResImageWidth)
-			* (Header->lowResImageHeight < 4 ? 4 : Header->lowResImageHeight) * 0.5f);
+		auto size = static_cast<unsigned int>((this->_header.lowResImageWidth < 4 ? 4 : this->_header.lowResImageWidth)
+			* (this->_header.lowResImageHeight < 4 ? 4 : this->_header.lowResImageHeight) * 0.5f);
 		this->_lowResData = new char[size];
 		_fseeki64(File, LowResStart, 0);
 		fread(this->_lowResData, 1, size, File);
@@ -164,10 +149,10 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	/* Read all the high res data */
 	{
 		unsigned int size = 0;
-		const unsigned int FACTOR = Header->depth * Header->numFrames
-			* ((static_cast<unsigned int>(Header->flags) & static_cast<unsigned int>(VTF::ImageFlags::ENVIRONMENTMAP)) != 0 ? 6 : 1);
+		const unsigned int FACTOR = this->_header.depth * this->_header.numFrames
+			* ((static_cast<unsigned int>(this->_header.flags) & static_cast<unsigned int>(VTF::ImageFlags::ENVIRONMENTMAP)) != 0 ? 6 : 1);
 
-		for (unsigned int i = 0; i < Header->numMipLevels; i++)
+		for (unsigned int i = 0; i < this->_header.numMipLevels; i++)
 		{
 			auto RES = (this->_mipMapResolutions[i].Width < 4 ? 4 : this->_mipMapResolutions[i].Width)
 				* (this->_mipMapResolutions[i].Height < 4 ? 4 : this->_mipMapResolutions[i].Height);
@@ -188,29 +173,28 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::~__VTFFileImpl()
 	for (auto&& i : this->_storedImages)
 		BitmapImage::Free(i);
 
-	delete[] this->_highResData;
-	delete[] this->_lowResData;
-	delete[] this->_mipMapResolutions;
+	if (this->_highResData != nullptr) delete[] this->_highResData;
+	if (this->_lowResData != nullptr) delete[] this->_lowResData;
 }
 
-xvtf::Bitmap::VTFResource xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceIndex(const unsigned int& index)
+bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceIndex(const unsigned int& index, unsigned int& value) const
 {
-	if (index >= this->_headerAligned->numResources)
+	if (index >= this->_header.numResources)
 	{
-		std::string err = "Index out of range with GetResourceIndex.";
-		throw std::out_of_range(err);
+		return false;
 	}
 
-	return this->_headerAligned->resources[index];
+	value = this->_header.resources[index].resData;
+	return true;
 }
 
-bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceType(const VTF::StockResourceTypes& type, unsigned int& value)
+bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceType(const unsigned int& type, unsigned int& value) const
 {
-	for (unsigned int i = 0; i < this->_headerAligned->numResources; i++)
+	for (unsigned int i = 0; i < this->_header.numResources; i++)
 	{
-		if (this->_headerAligned->resources[i].eType == static_cast<unsigned int>(type))
+		if (this->_header.resources[i].eType == static_cast<unsigned int>(type))
 		{
-			auto get = this->_headerAligned->resources[i];
+			auto get = this->_header.resources[i];
 			value = get.resData;
 
 			return true;
@@ -219,36 +203,40 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceType(const VTF::StockResou
 	return false;
 }
 
-xvtf::Bitmap::BitmapImage& xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(const unsigned int& MipLevel, const unsigned int& Frame,
+bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno,
+	const unsigned int& MipLevel, const unsigned int& Frame,
 	const unsigned int& Face, const unsigned int& zLevel)
 {
-	auto Header = this->_headerAligned;
-	const bool EnvMap = (static_cast<unsigned int>(Header->flags) & static_cast<unsigned int>(VTF::ImageFlags::ENVIRONMENTMAP)) != 0;
+	/* assume no error */
+	XVTF_SETERROR(xvtferrno, ERRORCODE::NONE);
+
+	const bool EnvMap = (static_cast<unsigned int>(this->_header.flags) & static_cast<unsigned int>(VTF::ImageFlags::ENVIRONMENTMAP)) != 0;
+
 	/* Catch Bad Indices */
-	if (MipLevel >= this->_headerAligned->numMipLevels)
-		throw std::out_of_range("GetImageData: MipLevel out of range.");
-	if (Frame >= this->_headerAligned->numFrames)
-		throw std::out_of_range("GetImageData: Frame out of range.");
-	if (Face >= 6 || (!EnvMap && Face > 0))
-		throw std::out_of_range("GetImageData: Face out of range.");
-	if (zLevel >= this->_headerAligned->depth)
-		throw std::out_of_range("GetImageData: zLevel out of range.");
+	if ((MipLevel >= this->_header.numMipLevels) ||
+		(Frame >= this->_header.numFrames) ||
+		(Face >= 6 || (!EnvMap && Face > 0)) ||
+		(zLevel >= this->_header.depth))
+	{
+		XVTF_SETERROR(xvtferrno, ERRORCODE::REQUESTED_IMAGE_DNE);
+		return false;
+	}
 
 	/* Find Appropriate Start To Data */
 	unsigned int START = 0;
 
-	const unsigned int SLICE_FACTOR = Header->depth;
+	const unsigned int SLICE_FACTOR = this->_header.depth;
 	const unsigned int FACE_FACTOR = SLICE_FACTOR * (EnvMap ? 6 : 1);
-	const unsigned int FRAME_FACTOR = FACE_FACTOR * Header->numFrames;
+	const unsigned int FRAME_FACTOR = FACE_FACTOR * this->_header.numFrames;
 
-	const bool COMP = Header->imageFormat == VTF::ImageFormat::DXT1 ||
-		Header->imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA ||
-		Header->imageFormat == VTF::ImageFormat::DXT3 ||
-		Header->imageFormat == VTF::ImageFormat::DXT5;
+	const bool COMP = this->_header.imageFormat == VTF::ImageFormat::DXT1 ||
+		this->_header.imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA ||
+		this->_header.imageFormat == VTF::ImageFormat::DXT3 ||
+		this->_header.imageFormat == VTF::ImageFormat::DXT5;
 
-	unsigned short BytesPerPixel = Tools::LUT::ImageFormatBPPU[static_cast<unsigned int>(Header->imageFormat)];
+	unsigned short BytesPerPixel = Tools::LUT::ImageFormatBPPU[static_cast<unsigned int>(this->_header.imageFormat)];
 
-	auto RES = *(this->_mipMapResolutions + MipLevel);
+	auto RES = this->_mipMapResolutions[MipLevel];
 	unsigned int RES_FACTOR;
 	
 	if (!COMP)
@@ -259,9 +247,9 @@ xvtf::Bitmap::BitmapImage& xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(const 
 	/* Scope to the correct Mip */
 	if (COMP)
 	{
-		for (unsigned int MIP = Header->numMipLevels - 1; MIP > MipLevel; --MIP)
+		for (unsigned int MIP = this->_header.numMipLevels - 1; MIP > MipLevel; --MIP)
 		{
-			auto res = *(this->_mipMapResolutions + MIP);
+			auto res = this->_mipMapResolutions[MIP];
 			START += static_cast<unsigned int>
 				((res.Width < 4 ? 4 : res.Width) * (res.Height < 4 ? 4 : res.Width)
 					* FRAME_FACTOR * this->_texelSize);
@@ -269,9 +257,9 @@ xvtf::Bitmap::BitmapImage& xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(const 
 	}
 	else
 	{
-		for (unsigned int MIP = Header->numMipLevels - 1; MIP > MipLevel; --MIP)
+		for (unsigned int MIP = this->_header.numMipLevels - 1; MIP > MipLevel; --MIP)
 		{
-			auto res = *(this->_mipMapResolutions + MIP);
+			auto res = this->_mipMapResolutions[MIP];
 			START += static_cast<unsigned int>
 				(res.Width * res.Height * FRAME_FACTOR * this->_texelSize);
 		}
@@ -290,46 +278,74 @@ xvtf::Bitmap::BitmapImage& xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(const 
 	if (!COMP)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(((void*)((char*)this->_highResData + START)), RES_FACTOR, BytesPerPixel, false));
-		return *_storedImages[_storedImages.size()];
+		bmp = _storedImages[_storedImages.size()];
+		return true;
 	}
-	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1)
+	else if (this->_header.imageFormat == VTF::ImageFormat::DXT1)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
-		return *_storedImages[_storedImages.size()];
+		bmp = _storedImages[_storedImages.size()];
+		return true;
 	}
-	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA)
+	else if (this->_header.imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
-		return *_storedImages[_storedImages.size()];
+		bmp = _storedImages[_storedImages.size()];
+		return true;
 	}
-	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT3)
+	else if (this->_header.imageFormat == VTF::ImageFormat::DXT3)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
-		return *_storedImages[_storedImages.size()];
+		bmp = _storedImages[_storedImages.size()];
+		return true;
 	}
-	else if (this->_headerAligned->imageFormat == VTF::ImageFormat::DXT5)
+	else if (this->_header.imageFormat == VTF::ImageFormat::DXT5)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
-		return *_storedImages[_storedImages.size()];
+		bmp = _storedImages[_storedImages.size()];
+		return true;
 	}
 
-	throw std::runtime_error("Critical Error in xvtf::Bitmap::BitmapImage* xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(const unsigned int& MipLevel, const unsigned int& Frame, unsigned int& Face, const unsigned int& zLevel)");
+	XVTF_SETERROR(xvtferrno, ERRORCODE::UNKNOWN);
+	return false;
 }
 
-xvtf::Bitmap::Resolution xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResolution(const unsigned int& index) const
+bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResolution(Resolution* const & res, const unsigned int& index, unsigned int * const & xvtferrno) const
 {
-	if (index >= this->_headerAligned->numMipLevels)
+	/* catch null return value */
+	if (res == nullptr)
 	{
-		std::out_of_range("GetResolution: MipLevel out of range.");
+		XVTF_SETERROR(xvtferrno, ERRORCODE::REQUIRED_PARAMETER_NULL);
+		return false;
 	}
 
-	return *(this->_mipMapResolutions + index);
+	if (index >= this->_header.numMipLevels)
+	{
+		XVTF_SETERROR(xvtferrno, ERRORCODE::REQUESTED_IMAGE_DNE);
+		return false;
+	}
+	else
+	{
+		*res = this->_mipMapResolutions[index];
+		XVTF_SETERROR(xvtferrno, ERRORCODE::NONE);
+	}
+
+	return true;
 }
 
-xvtf::Bitmap::VTFFile* xvtf::Bitmap::VTFFile::Alloc(const char* FilePath, const bool& HeaderOnly)
+xvtf::Bitmap::VTFFile* xvtf::Bitmap::VTFFile::Alloc(const char* FilePath, const bool& HeaderOnly, unsigned int * const & xvtferrno)
 {
-	VTFFile* r = new VTFFile();
-	r->_impl = new __VTFFileImpl(FilePath, HeaderOnly);
+	VTFFile* r = nullptr;
+	auto impl = new __VTFFileImpl(FilePath, HeaderOnly, xvtferrno);
+
+	if (xvtferrno != (unsigned int)ERRORCODE::NONE)
+	{
+		delete impl;
+		return r;
+	}
+
+	r = new VTFFile();
+	r->_impl = impl;
 	return r;
 }
 
@@ -344,23 +360,24 @@ void xvtf::Bitmap::VTFFile::Free(VTFFile*& obj)
 	}
 }
 
-xvtf::Bitmap::VTFResource xvtf::Bitmap::VTFFile::GetResourceIndex(const unsigned int& index)
+bool xvtf::Bitmap::VTFFile::GetResourceIndex(const unsigned int& index, unsigned int& value) const
 {
-	return this->_impl->GetResourceIndex(index);
+	return this->_impl->GetResourceIndex(index, value);
 }
 
-bool xvtf::Bitmap::VTFFile::GetResourceType(const VTF::StockResourceTypes& type, unsigned int& value)
+bool xvtf::Bitmap::VTFFile::GetResourceType(const unsigned int& type, unsigned int& value) const
 {
 	return this->_impl->GetResourceType(type, value);
 }
 
-xvtf::Bitmap::BitmapImage& xvtf::Bitmap::VTFFile::GetImage(const unsigned int& MipLevel, const unsigned int& Frame,
+bool xvtf::Bitmap::VTFFile::GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno,
+	const unsigned int& MipLevel, const unsigned int& Frame,
 	const unsigned int& Face, const unsigned int& zLevel)
 {
-	return this->_impl->GetImage(MipLevel, Frame, Face, zLevel);
+	return this->_impl->GetImage(bmp, xvtferrno, MipLevel, Frame, Face, zLevel);
 }
 
-xvtf::Bitmap::Resolution xvtf::Bitmap::VTFFile::GetResolution(const unsigned int& MipLevel) const
+bool xvtf::Bitmap::VTFFile::GetResolution(Resolution* const & res, const unsigned int& MipLevel, unsigned int * const & xvtferrno) const
 {
-	return this->_impl->GetResolution(MipLevel);
+	return this->_impl->GetResolution(res, MipLevel, xvtferrno);
 }

@@ -20,14 +20,14 @@ namespace xvtf
 		public:
 			//----------------------------------------------------------------------------------------------------
 			/// Allocates a new BitmapImage. Ensure that you call BitmapImage::Free() when you are done with the object.
-			/// @param[in] buffer		A pointer the the buffer that contains the image data.
+			/// @param[in] buffer		A pointer to the buffer that contains the image data.
 			/// @param[in] size			The number of pixels that this buffer contains.
 			/// @param[in] pixel_size	The size in bytes that each pixel occupies.
 			/// @param[in] owns_data	If true, the image data for this object will be freed when Free() is called.
 			/// @return BitmapImage*	A pointer to the created object.
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI static BitmapImage* Alloc(void* buffer, const unsigned int& size,
-				const unsigned short& pixel_size, const bool& owns_data);
+				const unsigned short& pixel_size, const bool& owns_data = true);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Frees the supplied BitmapImage object.
@@ -38,16 +38,9 @@ namespace xvtf
 			//----------------------------------------------------------------------------------------------------
 			/// Returns a pointer to the pixel at index.
 			/// @param[in] index			The index of the pixel to return.
-			/// @return void*				The retrieved pixel.
-			/// @throws std::out_of_range	when the supplied index exceeds the number of pixels.
+			/// @return void*				The retrieved pixel, or nullptr if the index is out of range.
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI void* operator[](const unsigned int& index);
-
-			//----------------------------------------------------------------------------------------------------
-			/// Returns the bytes per pixel of the given image.
-			/// @return unsigned short		The bytes per pixel.
-			//----------------------------------------------------------------------------------------------------
-			XVTFAPI unsigned short GetBytesPerPixel() const;
 
 
 
