@@ -21,7 +21,7 @@ namespace xvtf
 			int headerSize;
 			unsigned short width;
 			unsigned short height;
-			VTF::ImageFlags flags;
+			unsigned int flags;
 			unsigned short numFrames;
 			unsigned short startFrame;
 		private:
@@ -32,9 +32,9 @@ namespace xvtf
 			char pad2[4];
 		public:
 			float bumpScale;
-			VTF::ImageFormat imageFormat;
+			unsigned int imageFormat;
 			unsigned char numMipLevels;
-			VTF::ImageFormat lowResImageFormat;
+			unsigned int lowResImageFormat;
 			unsigned char lowResImageWidth;
 			unsigned char lowResImageHeight;
 		};
@@ -45,7 +45,6 @@ namespace xvtf
 		struct VTFFileHeader_7_2_r : public VTFFileBaseHeader_r
 		{
 		public:
-			VTFFileHeader_7_2_r() : depth(1) { }
 			unsigned short depth;
 		};
 
@@ -54,8 +53,6 @@ namespace xvtf
 		//----------------------------------------------------------------------------------------------------
 		struct VTFFileHeader_7_3_r : public VTFFileHeader_7_2_r
 		{
-		public:
-			VTFFileHeader_7_3_r() : numResources(0) { }
 		private:
 			char pad4[3];
 		public:

@@ -4,6 +4,5 @@
 int main(unsigned int argc, char** argv)
 {
 	// WIP
-
 	return 0;
 }

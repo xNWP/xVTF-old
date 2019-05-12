@@ -69,10 +69,79 @@ namespace xvtf
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI bool GetResolution(Resolution* const & res, const unsigned int MipLevel = 0, unsigned int * const & xvtferrno = nullptr) const;
 
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the version of the file as an array of size 2. version[0].version[1]
+			/// @param[out] version		The version of the VTF file.
+			/// @return void
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI void GetVersion(unsigned int version[2]) const;
 
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the flags of the file.
+			/// @return unsigned int	The files flags.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned int GetFlags() const;
 
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the number of frames in the file.
+			/// @return unsigned short			The number of frames the file has.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned short GetFrameCount() const;
 
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the starting frame of the file.
+			/// @return unsigned short			The starting frame of the file.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned short GetStartFrame() const;
 
+			//----------------------------------------------------------------------------------------------------
+			/// Get's the reflectivity vector (as an array of size 3) of the file.
+			/// @param[out] float[3]		The reflectivity of the image.
+			/// @return void
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI void GetReflectivity(float reflectivity[3]) const;
+
+			//----------------------------------------------------------------------------------------------------
+			/// Get's the bumpmap scale.
+			/// @return float			The bumpmap scale of the image.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI float GetBumpmapScale() const;
+
+			//----------------------------------------------------------------------------------------------------
+			/// Get's the image format.
+			/// @return unsigned int		The image format.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned int GetImageFormat() const;
+
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the number of mip maps in the file.
+			/// @return unsigned short			The number of mips.
+			//----------------------------------------------------------------------------------------------------
+			unsigned short GetMipCount() const;
+
+			//----------------------------------------------------------------------------------------------------
+			/// Get's the low resolution image format.
+			/// @return unsigned int		The image format.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned int GetLowResImageFormat() const;
+
+			//----------------------------------------------------------------------------------------------------
+			/// Get's the low resolution image resolution.
+			/// @return Resolution			The grabbed resolution.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI Resolution GetLowResImageResolution() const;
+
+			//----------------------------------------------------------------------------------------------------
+			/// Get's the depth (# of slices) of the image.
+			/// @return unsigned short		The depth of the image.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned short GetDepth() const;
+
+			//----------------------------------------------------------------------------------------------------
+			/// Get's the number of resource entries the image has.
+			/// @return unsigned int		The number of resource entries.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned int GetResourceCount() const;
 
 
 			 /////////////////////////////////////////////////////////////////

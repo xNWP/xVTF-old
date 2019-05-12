@@ -6,8 +6,6 @@
 #include "xVTF/xVTFHeaders.h"
 #include "xVTF/xVTFStructs.h"
 
-#include <memory>
-#include <stdexcept>
 #include <vector>
 
 class xvtf::Bitmap::VTFFile::__VTFFileImpl
@@ -20,6 +18,18 @@ public:
 	bool GetResourceType(const unsigned int type, unsigned int& value) const;
 	bool GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno, const unsigned int MipLevel, const unsigned int Frame, const unsigned int Face, const unsigned int zLevel);
 	bool GetResolution(Resolution* const & res, const unsigned int index, unsigned int * const & xvtferrno) const;
+	void GetVersion(unsigned int version[2]) const;
+	unsigned int GetFlags() const;
+	unsigned short GetFrameCount() const;
+	unsigned short GetStartFrame() const;
+	void GetReflectivity(float reflectivity[3]) const;
+	float GetBumpmapScale() const;
+	unsigned int GetImageFormat() const;
+	unsigned short GetMipCount() const;
+	unsigned int GetLowResImageFormat() const;
+	Resolution GetLowResImageResolution() const;
+	unsigned short GetDepth() const;
+	unsigned int GetResourceCount() const;
 
 private:
 	VTFFileHeader _header;
@@ -82,7 +92,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 
 	/* Determine LowResImage start (thumbnail) */
 	unsigned int LowResStart;
-	if (this->_header.lowResImageFormat == VTF::ImageFormat::NONE)
+	if (this->_header.lowResImageFormat == (unsigned int)VTF::ImageFormat::NONE)
 	{
 		LowResStart = -1;
 	}
@@ -101,7 +111,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	if (this->_header.version[1] < 3)
 	{
 		HighResStart = static_cast<unsigned int>(this->_header.headerSize +
-			(this->_header.lowResImageFormat == VTF::ImageFormat::NONE ? 0 : this->_header.lowResImageWidth * this->_header.lowResImageHeight * 0.5f));
+			(this->_header.lowResImageFormat == (unsigned int)VTF::ImageFormat::NONE ? 0 : this->_header.lowResImageWidth * this->_header.lowResImageHeight * 0.5f));
 	}
 	else if (!GetResourceType((unsigned int)VTF::StockResourceTypes::HIGH_RES_IMAGE, HighResStart))
 	{
@@ -137,7 +147,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	}
 
 	/* Read all the low res data */
-	if (this->_header.lowResImageFormat != VTF::ImageFormat::NONE)
+	if (this->_header.lowResImageFormat != (unsigned int)VTF::ImageFormat::NONE)
 	{
 		auto size = static_cast<unsigned int>((this->_header.lowResImageWidth < 4 ? 4 : this->_header.lowResImageWidth)
 			* (this->_header.lowResImageHeight < 4 ? 4 : this->_header.lowResImageHeight) * 0.5f);
@@ -229,10 +239,10 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(BitmapImage*& bmp, unsigned 
 	const unsigned int FACE_FACTOR = SLICE_FACTOR * (EnvMap ? 6 : 1);
 	const unsigned int FRAME_FACTOR = FACE_FACTOR * this->_header.numFrames;
 
-	const bool COMP = this->_header.imageFormat == VTF::ImageFormat::DXT1 ||
-		this->_header.imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA ||
-		this->_header.imageFormat == VTF::ImageFormat::DXT3 ||
-		this->_header.imageFormat == VTF::ImageFormat::DXT5;
+	const bool COMP = this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT1 ||
+		this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT1_ONEBITALPHA ||
+		this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT3 ||
+		this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT5;
 
 	unsigned short BytesPerPixel = Tools::LUT::ImageFormatBPPU[static_cast<unsigned int>(this->_header.imageFormat)];
 
@@ -281,25 +291,25 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(BitmapImage*& bmp, unsigned 
 		bmp = _storedImages[_storedImages.size()];
 		return true;
 	}
-	else if (this->_header.imageFormat == VTF::ImageFormat::DXT1)
+	else if (this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT1)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
 		bmp = _storedImages[_storedImages.size()];
 		return true;
 	}
-	else if (this->_header.imageFormat == VTF::ImageFormat::DXT1_ONEBITALPHA)
+	else if (this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT1_ONEBITALPHA)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
 		bmp = _storedImages[_storedImages.size()];
 		return true;
 	}
-	else if (this->_header.imageFormat == VTF::ImageFormat::DXT3)
+	else if (this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT3)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
 		bmp = _storedImages[_storedImages.size()];
 		return true;
 	}
-	else if (this->_header.imageFormat == VTF::ImageFormat::DXT5)
+	else if (this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT5)
 	{
 		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
 		bmp = _storedImages[_storedImages.size()];
@@ -331,6 +341,73 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResolution(Resolution* const & res
 	}
 
 	return true;
+}
+
+void xvtf::Bitmap::VTFFile::__VTFFileImpl::GetVersion(unsigned int version[2]) const
+{
+	version[0] = this->_header.version[0];
+	version[1] = this->_header.version[1];
+}
+
+unsigned int xvtf::Bitmap::VTFFile::__VTFFileImpl::GetFlags() const
+{
+	return this->_header.flags;
+}
+
+unsigned short xvtf::Bitmap::VTFFile::__VTFFileImpl::GetFrameCount() const
+{
+	return this->_header.numFrames;
+}
+
+unsigned short xvtf::Bitmap::VTFFile::__VTFFileImpl::GetStartFrame() const
+{
+	return this->_header.startFrame;
+}
+
+void xvtf::Bitmap::VTFFile::__VTFFileImpl::GetReflectivity(float reflectivity[3]) const
+{
+	reflectivity[0] = this->_header.reflectivity[0];
+	reflectivity[1] = this->_header.reflectivity[1];
+	reflectivity[2] = this->_header.reflectivity[2];
+}
+
+float xvtf::Bitmap::VTFFile::__VTFFileImpl::GetBumpmapScale() const
+{
+	return this->_header.bumpScale;
+}
+
+unsigned int xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImageFormat() const
+{
+	return this->_header.imageFormat;
+}
+
+unsigned short xvtf::Bitmap::VTFFile::__VTFFileImpl::GetMipCount() const
+{
+	return (unsigned short)this->_header.numMipLevels;
+}
+
+unsigned int xvtf::Bitmap::VTFFile::__VTFFileImpl::GetLowResImageFormat() const
+{
+	return this->_header.lowResImageFormat;
+}
+
+xvtf::Bitmap::Resolution xvtf::Bitmap::VTFFile::__VTFFileImpl::GetLowResImageResolution() const
+{
+	Resolution rval;
+	rval.Width = (unsigned int)this->_header.lowResImageWidth;
+	rval.Height = (unsigned int)this->_header.lowResImageHeight;
+
+	return rval;
+}
+
+unsigned short xvtf::Bitmap::VTFFile::__VTFFileImpl::GetDepth() const
+{
+	return this->_header.depth;
+}
+
+unsigned int xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceCount() const
+{
+	return this->_header.numResources;
 }
 
 xvtf::Bitmap::VTFFile* xvtf::Bitmap::VTFFile::Alloc(const char* FilePath, const bool HeaderOnly, unsigned int * const & xvtferrno)
@@ -380,4 +457,59 @@ bool xvtf::Bitmap::VTFFile::GetImage(BitmapImage*& bmp, unsigned int * const & x
 bool xvtf::Bitmap::VTFFile::GetResolution(Resolution* const & res, const unsigned int MipLevel, unsigned int * const & xvtferrno) const
 {
 	return this->_impl->GetResolution(res, MipLevel, xvtferrno);
+}
+
+void xvtf::Bitmap::VTFFile::GetVersion(unsigned int version[2]) const
+{
+	return this->_impl->GetVersion(version);
+}
+
+unsigned short xvtf::Bitmap::VTFFile::GetFrameCount() const
+{
+	return this->_impl->GetFrameCount();
+}
+
+unsigned short xvtf::Bitmap::VTFFile::GetStartFrame() const
+{
+	return this->_impl->GetStartFrame();
+}
+
+void xvtf::Bitmap::VTFFile::GetReflectivity(float reflectivity[3]) const
+{
+	return this->_impl->GetReflectivity(reflectivity);
+}
+
+float xvtf::Bitmap::VTFFile::GetBumpmapScale() const
+{
+	return this->_impl->GetBumpmapScale();
+}
+
+unsigned int xvtf::Bitmap::VTFFile::GetImageFormat() const
+{
+	return this->_impl->GetImageFormat();
+}
+
+unsigned short xvtf::Bitmap::VTFFile::GetMipCount() const
+{
+	return this->_impl->GetMipCount();
+}
+
+unsigned int xvtf::Bitmap::VTFFile::GetLowResImageFormat() const
+{
+	return this->_impl->GetLowResImageFormat();
+}
+
+xvtf::Bitmap::Resolution xvtf::Bitmap::VTFFile::GetLowResImageResolution() const
+{
+	return this->_impl->GetLowResImageResolution();
+}
+
+unsigned short xvtf::Bitmap::VTFFile::GetDepth() const
+{
+	return this->_impl->GetDepth();
+}
+
+unsigned int xvtf::Bitmap::VTFFile::GetResourceCount() const
+{
+	return this->_impl->GetResourceCount();
 }
