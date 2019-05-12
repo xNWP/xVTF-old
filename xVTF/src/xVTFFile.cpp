@@ -13,13 +13,13 @@
 class xvtf::Bitmap::VTFFile::__VTFFileImpl
 {
 public:
-	__VTFFileImpl(const char* FilePath, const bool& HeaderOnly, unsigned int * const & xvtferrno);
+	__VTFFileImpl(const char* FilePath, const bool HeaderOnly, unsigned int * const & xvtferrno);
 	virtual ~__VTFFileImpl();
 
-	bool GetResourceIndex(const unsigned int& index, unsigned int& value) const;
-	bool GetResourceType(const unsigned int& type, unsigned int& value) const;
-	bool GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno, const unsigned int& MipLevel, const unsigned int& Frame, const unsigned int& Face, const unsigned int& zLevel);
-	bool GetResolution(Resolution* const & res, const unsigned int& index, unsigned int * const & xvtferrno) const;
+	bool GetResourceIndex(const unsigned int index, unsigned int& value) const;
+	bool GetResourceType(const unsigned int type, unsigned int& value) const;
+	bool GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno, const unsigned int MipLevel, const unsigned int Frame, const unsigned int Face, const unsigned int zLevel);
+	bool GetResolution(Resolution* const & res, const unsigned int index, unsigned int * const & xvtferrno) const;
 
 private:
 	VTFFileHeader _header;
@@ -30,7 +30,7 @@ private:
 	std::vector<BitmapImage*> _storedImages;
 };
 
-xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const bool& HeaderOnly, unsigned int * const & xvtferrno)
+xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const bool HeaderOnly, unsigned int * const & xvtferrno)
 {
 	auto File = fopen(FilePath, "rb");
 	if (File == nullptr)
@@ -177,7 +177,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::~__VTFFileImpl()
 	if (this->_lowResData != nullptr) delete[] this->_lowResData;
 }
 
-bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceIndex(const unsigned int& index, unsigned int& value) const
+bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceIndex(const unsigned int index, unsigned int& value) const
 {
 	if (index >= this->_header.numResources)
 	{
@@ -188,7 +188,7 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceIndex(const unsigned int& 
 	return true;
 }
 
-bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceType(const unsigned int& type, unsigned int& value) const
+bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceType(const unsigned int type, unsigned int& value) const
 {
 	for (unsigned int i = 0; i < this->_header.numResources; i++)
 	{
@@ -204,8 +204,8 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceType(const unsigned int& t
 }
 
 bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno,
-	const unsigned int& MipLevel, const unsigned int& Frame,
-	const unsigned int& Face, const unsigned int& zLevel)
+	const unsigned int MipLevel, const unsigned int Frame,
+	const unsigned int Face, const unsigned int zLevel)
 {
 	/* assume no error */
 	XVTF_SETERROR(xvtferrno, ERRORCODE::NONE);
@@ -310,7 +310,7 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(BitmapImage*& bmp, unsigned 
 	return false;
 }
 
-bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResolution(Resolution* const & res, const unsigned int& index, unsigned int * const & xvtferrno) const
+bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResolution(Resolution* const & res, const unsigned int index, unsigned int * const & xvtferrno) const
 {
 	/* catch null return value */
 	if (res == nullptr)
@@ -333,7 +333,7 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResolution(Resolution* const & res
 	return true;
 }
 
-xvtf::Bitmap::VTFFile* xvtf::Bitmap::VTFFile::Alloc(const char* FilePath, const bool& HeaderOnly, unsigned int * const & xvtferrno)
+xvtf::Bitmap::VTFFile* xvtf::Bitmap::VTFFile::Alloc(const char* FilePath, const bool HeaderOnly, unsigned int * const & xvtferrno)
 {
 	VTFFile* r = nullptr;
 	auto impl = new __VTFFileImpl(FilePath, HeaderOnly, xvtferrno);
@@ -360,24 +360,24 @@ void xvtf::Bitmap::VTFFile::Free(VTFFile*& obj)
 	}
 }
 
-bool xvtf::Bitmap::VTFFile::GetResourceIndex(const unsigned int& index, unsigned int& value) const
+bool xvtf::Bitmap::VTFFile::GetResourceIndex(const unsigned int index, unsigned int& value) const
 {
 	return this->_impl->GetResourceIndex(index, value);
 }
 
-bool xvtf::Bitmap::VTFFile::GetResourceType(const unsigned int& type, unsigned int& value) const
+bool xvtf::Bitmap::VTFFile::GetResourceType(const unsigned int type, unsigned int& value) const
 {
 	return this->_impl->GetResourceType(type, value);
 }
 
 bool xvtf::Bitmap::VTFFile::GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno,
-	const unsigned int& MipLevel, const unsigned int& Frame,
-	const unsigned int& Face, const unsigned int& zLevel)
+	const unsigned int MipLevel, const unsigned int Frame,
+	const unsigned int Face, const unsigned int zLevel)
 {
 	return this->_impl->GetImage(bmp, xvtferrno, MipLevel, Frame, Face, zLevel);
 }
 
-bool xvtf::Bitmap::VTFFile::GetResolution(Resolution* const & res, const unsigned int& MipLevel, unsigned int * const & xvtferrno) const
+bool xvtf::Bitmap::VTFFile::GetResolution(Resolution* const & res, const unsigned int MipLevel, unsigned int * const & xvtferrno) const
 {
 	return this->_impl->GetResolution(res, MipLevel, xvtferrno);
 }

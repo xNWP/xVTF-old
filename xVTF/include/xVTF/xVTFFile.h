@@ -22,7 +22,7 @@ namespace xvtf
 			/// @param[out] xvtferrno			The error number if an error occured, can be nullptr.
 			/// @return VTFFile*				A pointer to the VTFFile, or nullptr if an error occured. Caller owns object.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI static VTFFile* Alloc(const char* FilePath, const bool& HeaderOnly = false, unsigned int * const & xvtferrno = nullptr);
+			XVTFAPI static VTFFile* Alloc(const char* FilePath, const bool HeaderOnly = false, unsigned int * const & xvtferrno = nullptr);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Frees the VTFFile object from memory.
@@ -36,7 +36,7 @@ namespace xvtf
 			/// @param[out] value						Stores the returned value.
 			/// @return bool							True if the value exists.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI bool GetResourceIndex(const unsigned int& index, unsigned int& value) const;
+			XVTFAPI bool GetResourceIndex(const unsigned int index, unsigned int& value) const;
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns a resource by its integer type.
@@ -44,7 +44,7 @@ namespace xvtf
 			/// @param[out] value						Stores the returned value.
 			/// @return bool							True if the value exists.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI bool GetResourceType(const unsigned int& type, unsigned int& value) const;
+			XVTFAPI bool GetResourceType(const unsigned int type, unsigned int& value) const;
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns the image data. Uncompressed formats are first decoded.
@@ -57,8 +57,8 @@ namespace xvtf
 			/// @return bool							True if the BitmapImage was grabbed successfully.
 			//----------------------------------------------------------------------------------------------------
 			XVTFAPI bool GetImage(BitmapImage*& bmp, unsigned int * const & xvtferrno = nullptr,
-				const unsigned int& MipLevel = 0, const unsigned int& Frame = 0,
-				const unsigned int& Face = 0, const unsigned int& zLevel = 0);
+				const unsigned int MipLevel = 0, const unsigned int Frame = 0,
+				const unsigned int Face = 0, const unsigned int zLevel = 0);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Returns the resolution at the specified Mipmap level.
@@ -67,7 +67,7 @@ namespace xvtf
 			/// @param[out] xvtferrno	The error number if an error occured, can be nullptr.
 			/// @return bool			True if the resolution was successfully grabbed.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI bool GetResolution(Resolution* const & res, const unsigned int& MipLevel = 0, unsigned int * const & xvtferrno = nullptr) const;
+			XVTFAPI bool GetResolution(Resolution* const & res, const unsigned int MipLevel = 0, unsigned int * const & xvtferrno = nullptr) const;
 
 
 

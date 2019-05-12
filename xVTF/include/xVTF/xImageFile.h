@@ -26,8 +26,8 @@ namespace xvtf
 			/// @param[in] owns_data	If true, the image data for this object will be freed when Free() is called.
 			/// @return BitmapImage*	A pointer to the created object.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI static BitmapImage* Alloc(void* buffer, const unsigned int& size,
-				const unsigned short& pixel_size, const bool& owns_data = true);
+			XVTFAPI static BitmapImage* Alloc(void* buffer, const unsigned int size,
+				const unsigned short pixel_size, const bool owns_data = true);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Frees the supplied BitmapImage object.
@@ -40,7 +40,7 @@ namespace xvtf
 			/// @param[in] index			The index of the pixel to return.
 			/// @return void*				The retrieved pixel, or nullptr if the index is out of range.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI void* operator[](const unsigned int& index);
+			XVTFAPI void* operator[](const unsigned int index);
 
 
 
