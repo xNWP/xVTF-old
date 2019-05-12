@@ -3,6 +3,7 @@
 
 #include "xVTF/xImageFile.h"
 #include "xVTF/xPixelFormats.h"
+#include "xVTF/xExports.h"
 #include "xVTF/xVTFFile.h"
 #include "xVTF/xVTFStructs.h"
 
