@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="include\xVTF\xCodecs.h" />
     <ClInclude Include="include\xVTF\xExports.h" />
+    <ClInclude Include="include\xVTF\xHalfPrecisionFloat.h" />
     <ClInclude Include="include\xVTF\xImageFile.h" />
     <ClInclude Include="include\xVTF\xLUTs.h" />
     <ClInclude Include="include\xVTF\xPixelFormats.h" />
@@ -48,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\xCodecs.cpp" />
+    <ClCompile Include="src\xHalfPrecisionFloat.cpp" />
     <ClCompile Include="src\xImageFile.cpp" />
     <ClCompile Include="src\xVTFFile.cpp" />
   </ItemGroup>

@@ -306,17 +306,6 @@ void* xvtf::Tools::Codecs::DecompressDXT3(void* buffer, const unsigned int& offs
 
 void* xvtf::Tools::Codecs::DecompressDXT5(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
 {
-#pragma warning( push )
-#pragma warning( disable : 4838 4309)
-	// LUT's for quick conversion to RGB888
-	const char LUT5[] = { 0, 8, 16, 25, 33, 41, 49, 58, 66, 74, 82, 90, 99, 107, 115, 123, 132,
-						 140, 148, 156, 165, 173, 181, 189, 197, 206, 214, 222, 230, 239, 247, 255 };
-	const char LUT6[] = { 0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 45, 49, 53, 57, 61, 65, 69, 73,
-						 77, 81, 85, 89, 93, 97, 101, 105, 109, 113, 117, 121, 125, 130, 134, 138,
-						 142, 146, 150, 154, 158, 162, 166, 170, 174, 178, 182, 186, 190, 194, 198,
-						 202, 206, 210, 215, 219, 223, 227, 231, 235, 239, 243, 247, 251, 255 };
-#pragma warning( pop )
-
 	const unsigned int WIDTH = width < 4 ? 4 : width;
 	const unsigned int HEIGHT = height < 4 ? 4 : height;
 
@@ -395,14 +384,14 @@ void* xvtf::Tools::Codecs::DecompressDXT5(void* buffer, const unsigned int& offs
 		unsigned char c_1_b = *c_1 & 0x1F;
 
 		RGBA8888 Colour0;
-		Colour0.R = LUT5[c_0_r];
-		Colour0.G = LUT6[c_0_g];
-		Colour0.B = LUT5[c_0_b];
+		Colour0.R = LUT::LUT5[c_0_r];
+		Colour0.G = LUT::LUT6[c_0_g];
+		Colour0.B = LUT::LUT5[c_0_b];
 
 		RGBA8888 Colour1;
-		Colour1.R = LUT5[c_1_r];
-		Colour1.G = LUT6[c_1_g];
-		Colour1.B = LUT5[c_1_b];
+		Colour1.R = LUT::LUT5[c_1_r];
+		Colour1.G = LUT::LUT6[c_1_g];
+		Colour1.B = LUT::LUT5[c_1_b];
 
 		RGBA8888 Colour2 = Mix(Colour0, Colour1, 2, 1);
 		RGBA8888 Colour3 = Mix(Colour0, Colour1, 1, 2);

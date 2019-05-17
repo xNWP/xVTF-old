@@ -23,11 +23,9 @@ namespace xvtf
 			/// @param[in] buffer		A pointer to the buffer that contains the image data.
 			/// @param[in] size			The number of pixels that this buffer contains.
 			/// @param[in] pixel_size	The size in bytes that each pixel occupies.
-			/// @param[in] owns_data	If true, the image data for this object will be freed when Free() is called.
 			/// @return BitmapImage*	A pointer to the created object.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI static BitmapImage* Alloc(void* buffer, const unsigned int size,
-				const unsigned short pixel_size, const bool owns_data = true);
+			XVTFAPI static BitmapImage* Alloc(void* buffer, const unsigned int size, const unsigned short pixel_size);
 
 			//----------------------------------------------------------------------------------------------------
 			/// Frees the supplied BitmapImage object.
@@ -40,10 +38,26 @@ namespace xvtf
 			/// @param[in] index			The index of the pixel to return.
 			/// @return void*				The retrieved pixel, or nullptr if the index is out of range.
 			//----------------------------------------------------------------------------------------------------
-			XVTFAPI void* operator[](const unsigned int index);
+			XVTFAPI void* operator[](unsigned int index);
 
+			//----------------------------------------------------------------------------------------------------
+			/// Identical to operator[]. Provided to give clearer syntax with pointers. Returns a pointer to the pixel at index.
+			/// @param[in] index			The index of the pixel to return.
+			/// @return void*				The retrieved pixel, or nullptr if the index is out of range.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI void* at(unsigned int index);
 
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the number of pixels contained in the image.
+			/// @return unsigned int		The number of pixels in the image.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned int GetPixelCount() const;
 
+			//----------------------------------------------------------------------------------------------------
+			/// Returns the size in bytes that each pixel occupies.
+			/// @return unsigned short		The size in bytes of each pixel.
+			//----------------------------------------------------------------------------------------------------
+			XVTFAPI unsigned short GetPixelSize() const;
 
 
 			 /////////////////////////////////////////////////////////////////

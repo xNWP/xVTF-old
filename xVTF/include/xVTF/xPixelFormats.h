@@ -1,6 +1,8 @@
 #ifndef XVTF_PIXELFORMATS_H__
 #define XVTF_PIXELFORMATS_H__
 
+#include "xVTF/xHalfPrecisionFloat.h"
+
 namespace xvtf
 {
 	namespace Bitmap
@@ -36,16 +38,16 @@ namespace xvtf
 
 			struct RGB565
 			{
-				unsigned char R : 5;
-				unsigned char G : 6;
-				unsigned char B : 5;
+				unsigned short int R : 5;
+				unsigned short int G : 6;
+				unsigned short int B : 5;
 			};
 
 			struct BGR565
 			{
-				unsigned char B : 5;
-				unsigned char G : 6;
-				unsigned char R : 5;
+				unsigned short int B : 5;
+				unsigned short int G : 6;
+				unsigned short int R : 5;
 			};
 
 			struct A8
@@ -69,18 +71,18 @@ namespace xvtf
 
 			struct BGRA4444
 			{
-				unsigned char B : 4;
-				unsigned char G : 4;
-				unsigned char R : 4;
-				unsigned char A : 4;
+				unsigned short int B : 4;
+				unsigned short int G : 4;
+				unsigned short int R : 4;
+				unsigned short int A : 4;
 			};
 
 			struct BGRA5551
 			{
-				unsigned char B : 5;
-				unsigned char G : 5;
-				unsigned char R : 5;
-				unsigned char A : 1;
+				unsigned short int B : 5;
+				unsigned short int G : 5;
+				unsigned short int R : 5;
+				unsigned short int A : 1;
 			};
 
 			struct BGRA8888
@@ -93,10 +95,10 @@ namespace xvtf
 
 			struct BGRX5551
 			{
-				unsigned char B : 5;
-				unsigned char G : 5;
-				unsigned char R : 5;
-				unsigned char X : 1;
+				unsigned short int B : 5;
+				unsigned short int G : 5;
+				unsigned short int R : 5;
+				unsigned short int X : 1;
 			};
 
 			struct BGRX8888
@@ -136,6 +138,14 @@ namespace xvtf
 				unsigned short int G;
 				unsigned short int B;
 				unsigned short int A;
+			};
+
+			struct RGBA16161616F
+			{
+				xvtf::half R;
+				xvtf::half G;
+				xvtf::half B;
+				xvtf::half A;
 			};
 
 			struct UVLX8888

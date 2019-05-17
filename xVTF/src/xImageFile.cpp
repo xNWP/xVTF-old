@@ -6,36 +6,32 @@
 class xvtf::Bitmap::BitmapImage::__BitmapImageImpl
 {
 public:
-	__BitmapImageImpl(void* data, const unsigned int size, const unsigned short pixel_size, const bool owns_data);
+	__BitmapImageImpl(void* data, const unsigned int size, const unsigned short pixel_size);
+	virtual ~__BitmapImageImpl();
 
-	~__BitmapImageImpl();
-
-	void* operator[](const unsigned int index);
+	void* operator[](unsigned int index);
+	unsigned int GetPixelCount() const;
+	unsigned short GetPixelSize() const;
 
 private:
 	void* _data;
 	unsigned int _size;
 	unsigned short _psize;
-	bool _managed;
 };
 
-xvtf::Bitmap::BitmapImage::__BitmapImageImpl::__BitmapImageImpl(void* data, const unsigned int size, const unsigned short pixel_size, const bool owns_data)
+xvtf::Bitmap::BitmapImage::__BitmapImageImpl::__BitmapImageImpl(void* data, const unsigned int size, const unsigned short pixel_size)
 {
 	this->_data = data;
 	this->_size = size;
 	this->_psize = pixel_size;
-	this->_managed = owns_data;
 }
 
 xvtf::Bitmap::BitmapImage::__BitmapImageImpl::~__BitmapImageImpl()
 {
-	if (_managed)
-	{
-		delete[] _data;
-	}
+	delete[] this->_data;
 }
 
-void* xvtf::Bitmap::BitmapImage::__BitmapImageImpl::operator[](const unsigned int index)
+void* xvtf::Bitmap::BitmapImage::__BitmapImageImpl::operator[](unsigned int index)
 {
 	if (index >= _size)
 		return nullptr;
@@ -43,16 +39,20 @@ void* xvtf::Bitmap::BitmapImage::__BitmapImageImpl::operator[](const unsigned in
 	return (void*)((char*)_data + (unsigned int)std::round(index * _psize));
 }
 
-void* xvtf::Bitmap::BitmapImage::operator[](const unsigned int index)
+unsigned int xvtf::Bitmap::BitmapImage::__BitmapImageImpl::GetPixelCount() const
 {
-	return (*this->_impl)[index];
+	return this->_size;
 }
 
-xvtf::Bitmap::BitmapImage* xvtf::Bitmap::BitmapImage::Alloc(void* buffer, const unsigned int size,
-	const unsigned short pixel_size, const bool owns_data)
+unsigned short xvtf::Bitmap::BitmapImage::__BitmapImageImpl::GetPixelSize() const
+{
+	return this->_psize;
+}
+
+xvtf::Bitmap::BitmapImage* xvtf::Bitmap::BitmapImage::Alloc(void* buffer, const unsigned int size, const unsigned short pixel_size)
 {
 	BitmapImage* r = new BitmapImage();
-	r->_impl = new __BitmapImageImpl(buffer, size, pixel_size, owns_data);
+	r->_impl = new __BitmapImageImpl(buffer, size, pixel_size);
 	return r;
 }
 
@@ -65,4 +65,24 @@ void xvtf::Bitmap::BitmapImage::Free(BitmapImage*& obj)
 		delete obj;
 		obj = nullptr;
 	}
+}
+
+void* xvtf::Bitmap::BitmapImage::operator[](unsigned int index)
+{
+	return (*this->_impl)[index];
+}
+
+void* xvtf::Bitmap::BitmapImage::at(unsigned int index)
+{
+	return (*this->_impl)[index];
+}
+
+unsigned int xvtf::Bitmap::BitmapImage::GetPixelCount() const
+{
+	return this->_impl->GetPixelCount();
+}
+
+unsigned short xvtf::Bitmap::BitmapImage::GetPixelSize() const
+{
+	return this->_impl->GetPixelSize();
 }

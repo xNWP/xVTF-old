@@ -37,7 +37,6 @@ private:
 	void* _highResData;
 	void* _lowResData;
 	float _texelSize;
-	std::vector<BitmapImage*> _storedImages;
 };
 
 xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const bool HeaderOnly, unsigned int * const & xvtferrno)
@@ -155,6 +154,10 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 		_fseeki64(File, LowResStart, 0);
 		fread(this->_lowResData, 1, size, File);
 	}
+	else
+	{
+		this->_lowResData = nullptr;
+	}
 
 	/* Read all the high res data */
 	{
@@ -174,15 +177,12 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 		fread(this->_highResData, 1, size, File);
 	}
 
+	XVTF_SETERROR(xvtferrno, ERRORCODE::NONE);
 	fclose(File);
 }
 
 xvtf::Bitmap::VTFFile::__VTFFileImpl::~__VTFFileImpl()
 {
-	/* Delete stored images */
-	for (auto&& i : this->_storedImages)
-		BitmapImage::Free(i);
-
 	if (this->_highResData != nullptr) delete[] this->_highResData;
 	if (this->_lowResData != nullptr) delete[] this->_lowResData;
 }
@@ -287,32 +287,34 @@ bool xvtf::Bitmap::VTFFile::__VTFFileImpl::GetImage(BitmapImage*& bmp, unsigned 
 	/* And let the decoder take it from here (for compressed formats) */
 	if (!COMP)
 	{
-		_storedImages.push_back(BitmapImage::Alloc(((void*)((char*)this->_highResData + START)), RES_FACTOR, BytesPerPixel, false));
-		bmp = _storedImages[_storedImages.size()];
+		// Create a copy for the returned BitmapImage
+		char* buffer = new char[RES_FACTOR * BytesPerPixel];
+		for (unsigned int i = 0; i < RES_FACTOR * BytesPerPixel; ++i)
+		{
+			*(buffer + i) = *((char*)this->_highResData + START + i);
+		}
+
+		bmp = BitmapImage::Alloc((void*)buffer, RES_FACTOR, BytesPerPixel);
 		return true;
 	}
 	else if (this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT1)
 	{
-		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
-		bmp = _storedImages[_storedImages.size()];
+		bmp = BitmapImage::Alloc(Tools::Codecs::DecompressDXT1(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel);
 		return true;
 	}
 	else if (this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT1_ONEBITALPHA)
 	{
-		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
-		bmp = _storedImages[_storedImages.size()];
+		bmp = BitmapImage::Alloc(Tools::Codecs::DecompressDXT1_ONEBITALPHA(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel);
 		return true;
 	}
 	else if (this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT3)
 	{
-		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
-		bmp = _storedImages[_storedImages.size()];
+		bmp = BitmapImage::Alloc(Tools::Codecs::DecompressDXT3(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel);
 		return true;
 	}
 	else if (this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT5)
 	{
-		_storedImages.push_back(BitmapImage::Alloc(Tools::Codecs::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel, true));
-		bmp = _storedImages[_storedImages.size()];
+		bmp = BitmapImage::Alloc(Tools::Codecs::DecompressDXT5(this->_highResData, START, RES.Width, RES.Height), RES_FACTOR, BytesPerPixel);
 		return true;
 	}
 
@@ -413,14 +415,17 @@ unsigned int xvtf::Bitmap::VTFFile::__VTFFileImpl::GetResourceCount() const
 xvtf::Bitmap::VTFFile* xvtf::Bitmap::VTFFile::Alloc(const char* FilePath, const bool HeaderOnly, unsigned int * const & xvtferrno)
 {
 	VTFFile* r = nullptr;
-	auto impl = new __VTFFileImpl(FilePath, HeaderOnly, xvtferrno);
+	unsigned int err; // temp err in case xvtferrno is nullptr
+	auto impl = new __VTFFileImpl(FilePath, HeaderOnly, &err);
 
-	if (xvtferrno != (unsigned int)ERRORCODE::NONE)
+	if (err != (unsigned int)ERRORCODE::NONE)
 	{
+		XVTF_SETERROR(xvtferrno, err);
 		delete impl;
 		return r;
 	}
 
+	XVTF_SETERROR(xvtferrno, err);
 	r = new VTFFile();
 	r->_impl = impl;
 	return r;
@@ -462,6 +467,11 @@ bool xvtf::Bitmap::VTFFile::GetResolution(Resolution* const & res, const unsigne
 void xvtf::Bitmap::VTFFile::GetVersion(unsigned int version[2]) const
 {
 	return this->_impl->GetVersion(version);
+}
+
+unsigned int xvtf::Bitmap::VTFFile::GetFlags() const
+{
+	return this->_impl->GetFlags();
 }
 
 unsigned short xvtf::Bitmap::VTFFile::GetFrameCount() const
