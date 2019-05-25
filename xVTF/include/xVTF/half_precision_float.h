@@ -1,7 +1,7 @@
 #ifndef XVTF_HALF_PRECISION_FLOAT_H__
 #define XVTF_HALF_PRECISION_FLOAT_H__
 
-#include "xVTF/xExports.h"
+#include "xVTF/exports.h"
 
 #pragma pack(push, 1)
 
@@ -36,10 +36,10 @@ namespace xvtf
 		~half() = default;
 		half() = default;
 	private:
-		//half(const half&) = delete;
-		//half(const half&&) = delete;
-		//half& operator=(const half&) = delete;
-		//half& operator=(const half&&) = delete;
+		half(const half&) = delete;
+		half(const half&&) = delete;
+		half& operator=(const half&) = delete;
+		half& operator=(const half&&) = delete;
 	};
 }
 

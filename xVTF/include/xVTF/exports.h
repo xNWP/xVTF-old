@@ -1,5 +1,5 @@
-#ifndef XEXPORTS_H__
-#define XEXPORTS_H__
+#ifndef XVTF_EXPORTS_H__
+#define XVTF_EXPORTS_H__
 
 /* Linking Mode */
 #ifdef XVTF_STATIC
@@ -15,4 +15,4 @@
 #	endif
 #endif
 
-#endif // !XEXPORTS_H__
+#endif // !XVTF_EXPORTS_H__

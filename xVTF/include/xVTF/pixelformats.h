@@ -1,7 +1,7 @@
 #ifndef XVTF_PIXELFORMATS_H__
 #define XVTF_PIXELFORMATS_H__
 
-#include "xVTF/xHalfPrecisionFloat.h"
+#include "xVTF/half_precision_float.h"
 
 namespace xvtf
 {

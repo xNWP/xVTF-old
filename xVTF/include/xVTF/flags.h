@@ -1,9 +1,5 @@
-#ifndef XVTF_STRUCTS_H__
-#define XVTF_STRUCTS_H__
-
-#define XVTF_VTF_MAX_RESOURCES	32
-#define XVTF_VTF_MAX_VERSION_MAJOR	7
-#define XVTF_VTF_MAX_VERSION_MINOR	5
+#ifndef XVTF_FLAGS_H__
+#define XVTF_FLAGS_H__
 
 namespace xvtf
 {
@@ -90,20 +86,7 @@ namespace xvtf
 				CRC = 0x02435243
 			};
 		}
-
-		//----------------------------------------------------------------------------------------------------
-		/// General VTF Resource Struct
-		//----------------------------------------------------------------------------------------------------
-		struct VTFResource
-		{
-			union
-			{
-				unsigned int eType;
-				unsigned char chTypeBytes[4];
-			};
-			unsigned int resData;
-		};
 	}
 }
 
-#endif // !XVTF_STRUCTS_H__
+#endif // !XVTF_FLAGS_H__

@@ -1,7 +1,7 @@
-#ifndef XVTF_IMAGEFILE_H__
-#define XVTF_IMAGEFILE_H__
+#ifndef XVTF_BITMAPIMAGE_H__
+#define XVTF_BITMAPIMAGE_H__
 
-#include "xVTF/xExports.h"
+#include "xVTF/exports.h"
 
 namespace xvtf
 {
@@ -83,4 +83,4 @@ namespace xvtf
 	}
 }
 
-#endif // !XVTF_IMAGEFILE_H__
+#endif // !XVTF_BITMAPIMAGE_H__

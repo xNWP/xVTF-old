@@ -1,14 +1,22 @@
-#ifndef XVTF_FILE_H__
-#define XVTF_FILE_H__
+#ifndef XVTF_VTF_FILE_H__
+#define XVTF_VTF_FILE_H__
 
-#include "xVTF/xExports.h"
-#include "xVTF/xImageFile.h"
-#include "xVTF/xVTFStructs.h"
+#include "xVTF/bitmapimage.h"
+#include "xVTF/exports.h"
+
+#define XVTF_VTF_MAX_RESOURCES	32
+#define XVTF_VTF_MAX_VERSION_MAJOR	7
+#define XVTF_VTF_MAX_VERSION_MINOR	5
 
 namespace xvtf
 {
 	namespace Bitmap
 	{
+		namespace VTF
+		{
+			
+		}
+
 		//----------------------------------------------------------------------------------------------------
 		/// Generic VTFFile, provides several functions to use VTF files :-)
 		//----------------------------------------------------------------------------------------------------
@@ -117,7 +125,7 @@ namespace xvtf
 			/// Returns the number of mip maps in the file.
 			/// @return unsigned short			The number of mips.
 			//----------------------------------------------------------------------------------------------------
-			unsigned short GetMipCount() const;
+			XVTFAPI unsigned short GetMipCount() const;
 
 			//----------------------------------------------------------------------------------------------------
 			/// Get's the low resolution image format.
@@ -168,4 +176,4 @@ namespace xvtf
 }
 
 
-#endif // !XVTF_FILE_H__
+#endif // !XVTF_VTF_FILE_H__

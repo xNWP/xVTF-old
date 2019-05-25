@@ -1,4 +1,4 @@
-#include "xVTF/xHalfPrecisionFloat.h"
+#include "xVTF/half_precision_float.h"
 
 float xvtf::half::toFloat() const
 {

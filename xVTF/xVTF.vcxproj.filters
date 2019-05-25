@@ -2,21 +2,21 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="include\xVTF\xVTF.h" />
-    <ClInclude Include="include\xVTF\xExports.h" />
-    <ClInclude Include="include\xVTF\xVTFFile.h" />
-    <ClInclude Include="include\xVTF\xCodecs.h" />
-    <ClInclude Include="include\xVTF\xImageFile.h" />
-    <ClInclude Include="include\xVTF\xVTFStructs.h" />
-    <ClInclude Include="include\xVTF\xLUTs.h" />
-    <ClInclude Include="include\xVTF\xPixelFormats.h" />
-    <ClInclude Include="include\xVTF\xVTFHeaders.h" />
-    <ClInclude Include="include\xVTF\xVTFError.h" />
-    <ClInclude Include="include\xVTF\xHalfPrecisionFloat.h" />
+    <ClInclude Include="include\xVTF\internal\codecs.h" />
+    <ClInclude Include="include\xVTF\internal\vtfheader.h" />
+    <ClInclude Include="include\xVTF\exports.h" />
+    <ClInclude Include="include\xVTF\half_precision_float.h" />
+    <ClInclude Include="include\xVTF\bitmapimage.h" />
+    <ClInclude Include="include\xVTF\luts.h" />
+    <ClInclude Include="include\xVTF\pixelformats.h" />
+    <ClInclude Include="include\xVTF\error.h" />
+    <ClInclude Include="include\xVTF\vtf_file.h" />
+    <ClInclude Include="include\xVTF\flags.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\xVTFFile.cpp" />
-    <ClCompile Include="src\xCodecs.cpp" />
-    <ClCompile Include="src\xImageFile.cpp" />
-    <ClCompile Include="src\xHalfPrecisionFloat.cpp" />
+    <ClCompile Include="src\codecs.cpp" />
+    <ClCompile Include="src\half_precision_float.cpp" />
+    <ClCompile Include="src\bitmapimage.cpp" />
+    <ClCompile Include="src\vtf_file.cpp" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
-#include "xVTF/xCodecs.h"
-#include "xVTF/xLUTs.h"
+#include "xVTF/internal/codecs.h"
+
+#include "xVTF/luts.h"
 
 #include <cmath>
 

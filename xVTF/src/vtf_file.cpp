@@ -1,10 +1,11 @@
-#include "xVTF/xVTFFile.h"
+#include "xVTF/vtf_file.h"
 
-#include "xVTF/xCodecs.h"
-#include "xVTF/xLUTs.h"
-#include "xVTF/xVTFError.h"
-#include "xVTF/xVTFHeaders.h"
-#include "xVTF/xVTFStructs.h"
+#include "xVTF/error.h"
+#include "xVTF/flags.h"
+#include "xVTF/luts.h"
+
+#include "xVTF/internal/codecs.h"
+#include "xVTF/internal/vtfheader.h"
 
 #include <vector>
 
@@ -32,7 +33,7 @@ public:
 	unsigned int GetResourceCount() const;
 
 private:
-	VTFFileHeader _header;
+	VTF::VTFFileHeader _header;
 	std::vector<Resolution> _mipMapResolutions;
 	void* _highResData;
 	void* _lowResData;
@@ -76,7 +77,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	/* Feed all of this information into the VTF header struct */
 	_fseeki64(File, 0, SEEK_SET);
 
-	VTFFileHeader_r RawHeader;
+	VTF::VTFFileHeader_r RawHeader;
 	if (HeaderSize > sizeof(RawHeader))
 	{
 		XVTF_SETERROR(xvtferrno, ERRORCODE::HEADER_SIZE_TOO_LARGE);
@@ -84,7 +85,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	}
 
 	fread(&RawHeader, 1, HeaderSize, File);
-	this->_header = *reinterpret_cast<VTFFileHeader*>(&RawHeader);
+	this->_header = *reinterpret_cast<VTF::VTFFileHeader*>(&RawHeader);
 
 	/* Determine Texel Size (Bytes Per Pixel) */
 	this->_texelSize = Tools::LUT::ImageFormatBPP[static_cast<unsigned int>(this->_header.imageFormat)];

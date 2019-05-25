@@ -1,7 +1,7 @@
 #ifndef XVTF_CODECS_H__
 #define XVTF_CODECS_H__
 
-#include "xVTF/xPixelFormats.h"
+#include "xVTF/pixelformats.h"
 
 namespace xvtf
 {
@@ -74,4 +74,4 @@ namespace xvtf
 	}
 }
 
-#endif
+#endif // !XVTF_CODECS_H__

@@ -1,7 +1,6 @@
-#include "xVTF/xImageFile.h"
+#include "xVTF/bitmapimage.h"
 
 #include <cmath>
-#include <stdexcept>
 
 class xvtf::Bitmap::BitmapImage::__BitmapImageImpl
 {
