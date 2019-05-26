@@ -114,10 +114,10 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	unsigned int HighResStart;
 	if (this->_header.version[1] < 3)
 	{
-		HighResStart  = static_cast<unsigned int>(this->_header.headerSize +
+		HighResStart = static_cast<unsigned int>(this->_header.headerSize +
 			(this->_header.lowResImageFormat == (unsigned int)VTF::ImageFormat::NONE ? 0 : this->_header.lowResImageWidth * this->_header.lowResImageHeight * 0.5f));
 	}
-	else if (!GetResourceType((unsigned int)VTF::StockResourceTypes::HIGH_RES_IMAGE, HighResStart ))
+	else if (!GetResourceType((unsigned int)VTF::StockResourceTypes::HIGH_RES_IMAGE, HighResStart))
 	{
 		XVTF_SETERROR(xvtferrno, ERRORCODE::MISSING_IMAGE_DATA_MARKER);
 		fclose(File);
@@ -179,7 +179,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 		}
 
 		this->_highResData = new char[size];
-		_fseeki64(File, HighResStart , SEEK_SET);
+		_fseeki64(File, HighResStart, SEEK_SET);
 		fread(this->_highResData, 1, size, File);
 	}
 
