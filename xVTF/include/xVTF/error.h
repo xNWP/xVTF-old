@@ -24,7 +24,12 @@ namespace xvtf
 		NOT_A_VTF_FILE = 0x12, /* Supplied file is not a VTF file. */
 		UNSUPPORTED_FILE_VERSION = 0x13, /* Supplied file is not supported by the library. */
 		HEADER_SIZE_TOO_LARGE = 0x14, /* The files given headersize is larger than the max possible size (usually this means data-corruption). */
-		MISSING_IMAGE_DATA_MARKER = 0x15 /* Could not determine image starting location from header. */
+		MISSING_IMAGE_DATA_MARKER = 0x15, /* Could not determine image starting location from header. */
+
+		/* Arithemetic Errors */
+		NUMBER_WAS_INF = 0x20, /* The supplied value was +/- infinity */
+		NUMBER_WAS_NAN = 0x21, /* The supplied value was NaN (not a number). */
+		NUMBER_WAS_CLAMPED = 0x22 /* The supplied value was too large and was thus clamped. */
 	};
 }
 
