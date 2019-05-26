@@ -16,10 +16,14 @@ Global
 		Debug DLL|x86 = Debug DLL|x86
 		Debug Static Library|x64 = Debug Static Library|x64
 		Debug Static Library|x86 = Debug Static Library|x86
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release DLL|x64 = Release DLL|x64
 		Release DLL|x86 = Release DLL|x86
 		Release Static Library|x64 = Release Static Library|x64
 		Release Static Library|x86 = Release Static Library|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
@@ -30,6 +34,10 @@ Global
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Debug Static Library|x64.Build.0 = Debug Static Library|x64
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Debug Static Library|x86.ActiveCfg = Debug Static Library|Win32
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Debug Static Library|x86.Build.0 = Debug Static Library|Win32
+		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Debug|x64.ActiveCfg = Debug Static Library|x64
+		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Debug|x64.Build.0 = Debug Static Library|x64
+		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Debug|x86.ActiveCfg = Debug Static Library|Win32
+		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Debug|x86.Build.0 = Debug Static Library|Win32
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release DLL|x64.ActiveCfg = Release DLL|x64
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release DLL|x64.Build.0 = Release DLL|x64
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release DLL|x86.ActiveCfg = Release DLL|Win32
@@ -38,6 +46,10 @@ Global
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release Static Library|x64.Build.0 = Release Static Library|x64
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release Static Library|x86.ActiveCfg = Release Static Library|Win32
 		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release Static Library|x86.Build.0 = Release Static Library|Win32
+		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release|x64.ActiveCfg = Release Static Library|x64
+		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release|x64.Build.0 = Release Static Library|x64
+		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release|x86.ActiveCfg = Release Static Library|Win32
+		{22AF77BB-82EC-4F56-AEAA-ACE9A2DDFAFF}.Release|x86.Build.0 = Release Static Library|Win32
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug DLL|x64.Build.0 = Debug DLL|x64
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug DLL|x86.ActiveCfg = Debug DLL|Win32
@@ -46,6 +58,10 @@ Global
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug Static Library|x64.Build.0 = Debug Static Library|x64
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug Static Library|x86.ActiveCfg = Debug Static Library|Win32
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug Static Library|x86.Build.0 = Debug Static Library|Win32
+		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug|x64.ActiveCfg = Debug Static Library|x64
+		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug|x64.Build.0 = Debug Static Library|x64
+		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug|x86.ActiveCfg = Debug Static Library|Win32
+		{C837D232-7268-48F5-9BE1-D9014512BE03}.Debug|x86.Build.0 = Debug Static Library|Win32
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release DLL|x64.ActiveCfg = Release DLL|x64
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release DLL|x64.Build.0 = Release DLL|x64
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release DLL|x86.ActiveCfg = Release DLL|Win32
@@ -54,6 +70,10 @@ Global
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release Static Library|x64.Build.0 = Release Static Library|x64
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release Static Library|x86.ActiveCfg = Release Static Library|Win32
 		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release Static Library|x86.Build.0 = Release Static Library|Win32
+		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release|x64.ActiveCfg = Release Static Library|x64
+		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release|x64.Build.0 = Release Static Library|x64
+		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release|x86.ActiveCfg = Release Static Library|Win32
+		{C837D232-7268-48F5-9BE1-D9014512BE03}.Release|x86.Build.0 = Release Static Library|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

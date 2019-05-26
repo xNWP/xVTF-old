@@ -56,6 +56,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	if (strcmp(FourCC, "VTF"))
 	{
 		XVTF_SETERROR(xvtferrno, ERRORCODE::NOT_A_VTF_FILE);
+		fclose(File);
 		return;
 	}
 
@@ -67,6 +68,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 		Version[1] > XVTF_VTF_MAX_VERSION_MINOR)
 	{
 		XVTF_SETERROR(xvtferrno, ERRORCODE::UNSUPPORTED_FILE_VERSION);
+		fclose(File);
 		return;
 	}
 
@@ -81,6 +83,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	if (HeaderSize > sizeof(RawHeader))
 	{
 		XVTF_SETERROR(xvtferrno, ERRORCODE::HEADER_SIZE_TOO_LARGE);
+		fclose(File);
 		return;
 	}
 
@@ -103,6 +106,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	else if (!GetResourceType((unsigned int)VTF::StockResourceTypes::LOW_RES_IMAGE, LowResStart))
 	{
 		XVTF_SETERROR(xvtferrno, ERRORCODE::MISSING_IMAGE_DATA_MARKER);
+		fclose(File);
 		return;
 	}
 
@@ -110,12 +114,13 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 	unsigned int HighResStart;
 	if (this->_header.version[1] < 3)
 	{
-		HighResStart = static_cast<unsigned int>(this->_header.headerSize +
+		HighResStart  = static_cast<unsigned int>(this->_header.headerSize +
 			(this->_header.lowResImageFormat == (unsigned int)VTF::ImageFormat::NONE ? 0 : this->_header.lowResImageWidth * this->_header.lowResImageHeight * 0.5f));
 	}
-	else if (!GetResourceType((unsigned int)VTF::StockResourceTypes::HIGH_RES_IMAGE, HighResStart))
+	else if (!GetResourceType((unsigned int)VTF::StockResourceTypes::HIGH_RES_IMAGE, HighResStart ))
 	{
 		XVTF_SETERROR(xvtferrno, ERRORCODE::MISSING_IMAGE_DATA_MARKER);
+		fclose(File);
 		return;
 	}
 
@@ -152,7 +157,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 		auto size = static_cast<unsigned int>((this->_header.lowResImageWidth < 4 ? 4 : this->_header.lowResImageWidth)
 			* (this->_header.lowResImageHeight < 4 ? 4 : this->_header.lowResImageHeight) * 0.5f);
 		this->_lowResData = new char[size];
-		_fseeki64(File, LowResStart, 0);
+		_fseeki64(File, LowResStart, SEEK_SET);
 		fread(this->_lowResData, 1, size, File);
 	}
 	else
@@ -174,7 +179,7 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 		}
 
 		this->_highResData = new char[size];
-		_fseeki64(File, HighResStart, 0);
+		_fseeki64(File, HighResStart , SEEK_SET);
 		fread(this->_highResData, 1, size, File);
 	}
 
