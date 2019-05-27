@@ -184,7 +184,7 @@ void* xvtf::Tools::Codecs::DecompressDXT1_ONEBITALPHA(void* buffer, const unsign
 		RGBA8888 Colour2, Colour3;
 
 		// 4 Colour Mode (No Transparency)
-		if (c_0 > c_1)
+		if (*c_0 > *c_1)
 		{
 			Colour2 = Mix(Colour0, Colour1, 2, 1);
 			Colour3 = Mix(Colour0, Colour1, 1, 2);

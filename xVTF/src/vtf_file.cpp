@@ -167,14 +167,27 @@ xvtf::Bitmap::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, const 
 
 	/* Read all the high res data */
 	{
+		bool COMP = this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT1 ||
+			this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT1_ONEBITALPHA ||
+			this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT3 ||
+			this->_header.imageFormat == (unsigned int)VTF::ImageFormat::DXT5;
+
 		unsigned int size = 0;
 		const unsigned int FACTOR = this->_header.depth * this->_header.numFrames
 			* ((static_cast<unsigned int>(this->_header.flags) & static_cast<unsigned int>(VTF::ImageFlags::ENVIRONMENTMAP)) != 0 ? 6 : 1);
 
 		for (unsigned int i = 0; i < this->_header.numMipLevels; i++)
 		{
-			auto RES = (this->_mipMapResolutions[i].Width < 4 ? 4 : this->_mipMapResolutions[i].Width)
-				* (this->_mipMapResolutions[i].Height < 4 ? 4 : this->_mipMapResolutions[i].Height);
+			unsigned int RES;
+			if (COMP)
+			{
+				RES = (this->_mipMapResolutions[i].Width < 4 ? 4 : this->_mipMapResolutions[i].Width)
+					* (this->_mipMapResolutions[i].Height < 4 ? 4 : this->_mipMapResolutions[i].Height);
+			}
+			else
+			{
+				RES = this->_mipMapResolutions[i].Width * this->_mipMapResolutions[i].Height;
+			}
 			size += static_cast<unsigned int>(RES * FACTOR * this->_texelSize);
 		}
 
