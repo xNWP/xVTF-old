@@ -18,6 +18,8 @@
 #include "vtfheader.h"
 
 #include <cmath>
+#include <stdio.h>
+#include <string.h>
 #include <vector>
 
 class xvtf::VTFFile::__VTFFileImpl
@@ -88,7 +90,7 @@ xvtf::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, bool HeaderOnl
 	fread(&HeaderSize, sizeof(uint32), 1, File);
 
 	/* Feed all of this information into the VTF header struct */
-	_fseeki64(File, 0, SEEK_SET);
+	fseek(File, 0, SEEK_SET);
 
 	VTF::VTFFileHeader_r RawHeader;
 	if (HeaderSize > sizeof(RawHeader))
@@ -168,7 +170,7 @@ xvtf::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, bool HeaderOnl
 		auto size = static_cast<uint32>((this->_header.lowResImageWidth < 4 ? 4 : this->_header.lowResImageWidth)
 			* (this->_header.lowResImageHeight < 4 ? 4 : this->_header.lowResImageHeight) * 0.5f);
 		this->_lowResData = malloc(sizeof(uchar) * size);
-		_fseeki64(File, LowResStart, SEEK_SET);
+		fseek(File, LowResStart, SEEK_SET);
 		fread(this->_lowResData, 1, size, File);
 	}
 	else
@@ -203,7 +205,7 @@ xvtf::VTFFile::__VTFFileImpl::__VTFFileImpl(const char* FilePath, bool HeaderOnl
 		}
 
 		this->_highResData = malloc(sizeof(uchar) * size);
-		_fseeki64(File, HighResStart, SEEK_SET);
+		fseek(File, HighResStart, SEEK_SET);
 		fread(this->_highResData, 1, size, File);
 	}
 
