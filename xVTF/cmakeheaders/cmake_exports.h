@@ -32,6 +32,6 @@
 #	endif
 #endif
 
-#define XVTF_VERSION 100
+#cmakedefine XVTF_VERSION @XVTF_VERSION@
 
 #endif // !XVTF_EXPORTS_H__

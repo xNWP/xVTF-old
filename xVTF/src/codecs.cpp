@@ -1,10 +1,9 @@
-#include "xVTF/internal/codecs.h"
-
-#include "xVTF/luts.h"
+#include "codecs.h"
+#include "luts.h"
 
 #include <cmath>
 
-xvtf::Bitmap::PixelFormats::RGB888 xvtf::Tools::Codecs::Mix(const xvtf::Bitmap::PixelFormats::RGB888& _A, const xvtf::Bitmap::PixelFormats::RGB888& _B, const unsigned int& PartsA, const unsigned int& PartsB)
+xvtf::PixelFormats::RGB888 xvtf::Codecs::Mix(const xvtf::PixelFormats::RGB888& _A, const xvtf::PixelFormats::RGB888& _B, uint32 PartsA, uint32 PartsB)
 {
 	float A_R = static_cast<float>(_A.R);
 	float A_G = static_cast<float>(_A.G);
@@ -30,15 +29,15 @@ xvtf::Bitmap::PixelFormats::RGB888 xvtf::Tools::Codecs::Mix(const xvtf::Bitmap::
 	if (R_B > 255)
 		R_B = 255;
 
-	xvtf::Bitmap::PixelFormats::RGB888 RVAL;
-	RVAL.R = static_cast<unsigned char>(R_R);
-	RVAL.G = static_cast<unsigned char>(R_G);
-	RVAL.B = static_cast<unsigned char>(R_B);
+	xvtf::PixelFormats::RGB888 RVAL;
+	RVAL.R = static_cast<uchar>(R_R);
+	RVAL.G = static_cast<uchar>(R_G);
+	RVAL.B = static_cast<uchar>(R_B);
 
 	return RVAL;
 }
 
-xvtf::Bitmap::PixelFormats::RGBA8888 xvtf::Tools::Codecs::Mix(const xvtf::Bitmap::PixelFormats::RGBA8888& _A, const xvtf::Bitmap::PixelFormats::RGBA8888& _B, const unsigned int& PartsA, const unsigned int& PartsB)
+xvtf::PixelFormats::RGBA8888 xvtf::Codecs::Mix(const xvtf::PixelFormats::RGBA8888& _A, const xvtf::PixelFormats::RGBA8888& _B, uint32 PartsA, uint32 PartsB)
 {
 	float A_R = static_cast<float>(_A.R);
 	float A_G = static_cast<float>(_A.G);
@@ -70,37 +69,39 @@ xvtf::Bitmap::PixelFormats::RGBA8888 xvtf::Tools::Codecs::Mix(const xvtf::Bitmap
 	if (R_A > 255)
 		R_A = 255;
 
-	xvtf::Tools::Codecs::RGBA8888 RVAL;
-	RVAL.R = static_cast<unsigned char>(R_R);
-	RVAL.G = static_cast<unsigned char>(R_G);
-	RVAL.B = static_cast<unsigned char>(R_B);
-	RVAL.A = static_cast<unsigned char>(R_A);
+	xvtf::PixelFormats::RGBA8888 RVAL;
+	RVAL.R = static_cast<uchar>(R_R);
+	RVAL.G = static_cast<uchar>(R_G);
+	RVAL.B = static_cast<uchar>(R_B);
+	RVAL.A = static_cast<uchar>(R_A);
 
 	return RVAL;
 }
 
-void* xvtf::Tools::Codecs::DecompressDXT1(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
+void* xvtf::Codecs::DecompressDXT1(const void* buffer, addressable offset, uint16 width, uint16 height)
 {
-	const unsigned int WIDTH = width < 4 ? 4 : width;
-	const unsigned int HEIGHT = height < 4 ? 4 : height;
+	using namespace xvtf::PixelFormats;
+
+	uint32 WIDTH = width < 4 ? 4 : width;
+	uint32 HEIGHT = height < 4 ? 4 : height;
 
 	// Create Buffer
-	RGB888* rBuffer = new RGB888[WIDTH * HEIGHT];
-	char* bPtr = (char*)(buffer) + offset;
+	RGB888* rBuffer = (RGB888*)malloc(sizeof(RGB888) * WIDTH * HEIGHT);
+	uchar* bPtr = (uchar*)(buffer) + offset;
 
 	// For Each Block
-	for (unsigned int b = 0; b < (WIDTH * HEIGHT/ 16); b++)
+	for (uint32 b = 0; b < (WIDTH * HEIGHT/ 16); b++)
 	{
-		unsigned short* c_0 = (unsigned short*)bPtr; bPtr += 2;
-		unsigned short* c_1 = (unsigned short*)bPtr; bPtr += 2;
+		uint16* c_0 = (uint16*)bPtr; bPtr += 2;
+		uint16* c_1 = (uint16*)bPtr; bPtr += 2;
 
-		unsigned char c_0_r = (*c_0 >> 11) & 0x1F;
-		unsigned char c_0_g = (*c_0 >> 5) & 0x3F;
-		unsigned char c_0_b = *c_0 & 0x1F;
+		uchar c_0_r = (*c_0 >> 11) & 0x1F;
+		uchar c_0_g = (*c_0 >> 5) & 0x3F;
+		uchar c_0_b = *c_0 & 0x1F;
 
-		unsigned char c_1_r = (*c_1 >> 11) & 0x1F;
-		unsigned char c_1_g = (*c_1 >> 5) & 0x3F;
-		unsigned char c_1_b = *c_1 & 0x1F;
+		uchar c_1_r = (*c_1 >> 11) & 0x1F;
+		uchar c_1_g = (*c_1 >> 5) & 0x3F;
+		uchar c_1_b = *c_1 & 0x1F;
 
 		RGB888 Colour0;
 		Colour0.R = LUT::LUT5[c_0_r];
@@ -115,18 +116,18 @@ void* xvtf::Tools::Codecs::DecompressDXT1(void* buffer, const unsigned int& offs
 		RGB888 Colour2 = Mix(Colour0, Colour1, 2, 1);
 		RGB888 Colour3 = Mix(Colour0, Colour1, 1, 2);
 
-		unsigned int Row = (b / (WIDTH / 4)) * 4;
-		unsigned int Col = (b % (WIDTH / 4)) * 4;
+		uint32 Row = (b / (WIDTH / 4)) * 4;
+		uint32 Col = (b % (WIDTH / 4)) * 4;
 
 		// For Each Row (in block)
-		for (unsigned int bR = 0; bR < 4; bR++)
+		for (uchar bR = 0; bR < 4; bR++)
 		{
-			unsigned char* cData = (unsigned char*)bPtr; bPtr += 1;
+			uchar* cData = (uchar*)bPtr; bPtr += 1;
 
 			// For Each Column (in block row)
-			for (unsigned int bC = 0; bC < 4; bC++)
+			for (uchar bC = 0; bC < 4; bC++)
 			{
-				unsigned char Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
+				uchar Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
 				
 				RGB888 Colour;
 				if (Pix == 0b00)
@@ -146,28 +147,30 @@ void* xvtf::Tools::Codecs::DecompressDXT1(void* buffer, const unsigned int& offs
 	return (void*)rBuffer;
 }
 
-void* xvtf::Tools::Codecs::DecompressDXT1_ONEBITALPHA(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
+void* xvtf::Codecs::DecompressDXT1_ONEBITALPHA(const void* buffer, addressable offset, uint16 width, uint16 height)
 {
-	const unsigned int WIDTH = width < 4 ? 4 : width;
-	const unsigned int HEIGHT = height < 4 ? 4 : height;
+	using namespace xvtf::PixelFormats;
+
+	uint32 WIDTH = width < 4 ? 4 : width;
+	uint32 HEIGHT = height < 4 ? 4 : height;
 
 	// Create Buffer
-	RGBA8888* rBuffer = new RGBA8888[WIDTH * HEIGHT];
-	char* bPtr = (char*)(buffer)+offset;
+	RGBA8888* rBuffer = (RGBA8888*)malloc(sizeof(RGBA8888) * WIDTH * HEIGHT);
+	uchar* bPtr = (uchar*)(buffer)+offset;
 
 	// For Each Block
-	for (unsigned int b = 0; b < (WIDTH * HEIGHT / 16); b++)
+	for (uint32 b = 0; b < (WIDTH * HEIGHT / 16); b++)
 	{
-		unsigned short* c_0 = (unsigned short*)bPtr; bPtr += 2;
-		unsigned short* c_1 = (unsigned short*)bPtr; bPtr += 2;
+		uint16* c_0 = (uint16*)bPtr; bPtr += 2;
+		uint16* c_1 = (uint16*)bPtr; bPtr += 2;
 
-		unsigned char c_0_r = (*c_0 >> 11) & 0x1F;
-		unsigned char c_0_g = (*c_0 >> 5) & 0x3F;
-		unsigned char c_0_b = *c_0 & 0x1F;
+		uchar c_0_r = (*c_0 >> 11) & 0x1F;
+		uchar c_0_g = (*c_0 >> 5) & 0x3F;
+		uchar c_0_b = *c_0 & 0x1F;
 
-		unsigned char c_1_r = (*c_1 >> 11) & 0x1F;
-		unsigned char c_1_g = (*c_1 >> 5) & 0x3F;
-		unsigned char c_1_b = *c_1 & 0x1F;
+		uchar c_1_r = (*c_1 >> 11) & 0x1F;
+		uchar c_1_g = (*c_1 >> 5) & 0x3F;
+		uchar c_1_b = *c_1 & 0x1F;
 
 		RGBA8888 Colour0;
 		Colour0.R = LUT::LUT5[c_0_r];
@@ -195,18 +198,18 @@ void* xvtf::Tools::Codecs::DecompressDXT1_ONEBITALPHA(void* buffer, const unsign
 			Colour3.R = 0; Colour3.G = 0; Colour3.B = 0; Colour3.A = 0;
 		}
 
-		unsigned int Row = (b / (WIDTH / 4)) * 4;
-		unsigned int Col = (b % (WIDTH / 4)) * 4;
+		uint32 Row = (b / (WIDTH / 4)) * 4;
+		uint32 Col = (b % (WIDTH / 4)) * 4;
 
 		// For Each Row (in block)
-		for (unsigned int bR = 0; bR < 4; bR++)
+		for (uchar bR = 0; bR < 4; bR++)
 		{
-			unsigned char* cData = (unsigned char*)bPtr; bPtr += 1;
+			uchar* cData = (uchar*)bPtr; bPtr += 1;
 
 			// For Each Column (in block row)
-			for (unsigned int bC = 0; bC < 4; bC++)
+			for (uchar bC = 0; bC < 4; bC++)
 			{
-				unsigned char Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
+				uchar Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
 
 				RGBA8888 Colour;
 				if (Pix == 0b00)
@@ -226,39 +229,41 @@ void* xvtf::Tools::Codecs::DecompressDXT1_ONEBITALPHA(void* buffer, const unsign
 	return (void*)rBuffer;
 }
 
-void* xvtf::Tools::Codecs::DecompressDXT3(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
+void* xvtf::Codecs::DecompressDXT3(const void* buffer, addressable offset, uint16 width, uint16 height)
 {
-	const unsigned int WIDTH = width < 4 ? 4 : width;
-	const unsigned int HEIGHT = height < 4 ? 4 : height;
+	using namespace xvtf::PixelFormats;
+
+	uint32 WIDTH = width < 4 ? 4 : width;
+	uint32 HEIGHT = height < 4 ? 4 : height;
 
 	// Create Buffer
-	RGBA8888* rBuffer = new RGBA8888[WIDTH * HEIGHT];
-	char* bPtr = (char*)(buffer)+offset;
+	RGBA8888* rBuffer = (RGBA8888*)malloc(sizeof(RGBA8888) * WIDTH * HEIGHT);
+	uchar* bPtr = (uchar*)(buffer)+offset;
 
 	// For Each Block
-	for (unsigned int b = 0; b < (WIDTH * HEIGHT / 16); b++)
+	for (uint32 b = 0; b < (WIDTH * HEIGHT / 16); b++)
 	{
-		unsigned char A[16];
+		uchar A[16];
 		// Read in Alpha Data
-		for (unsigned char i = 0; i < 4; ++i)
+		for (uchar i = 0; i < 4; ++i)
 		{
-			unsigned short* VAL = (unsigned short*)bPtr; bPtr += 2;
+			uint16* VAL = (uint16*)bPtr; bPtr += 2;
 			A[i * 4] = LUT::LUT4[(*VAL >> 12) & 0xF];
 			A[i * 4 + 1] = LUT::LUT4[(*VAL >> 8) & 0xF];
 			A[i * 4 + 2] = LUT::LUT4[(*VAL >> 4) & 0xF];
 			A[i * 4 + 3] = LUT::LUT4[*VAL & 0xF];
 		}
 
-		unsigned short* c_0 = (unsigned short*)bPtr; bPtr += 2;
-		unsigned short* c_1 = (unsigned short*)bPtr; bPtr += 2;
+		uint16* c_0 = (uint16*)bPtr; bPtr += 2;
+		uint16* c_1 = (uint16*)bPtr; bPtr += 2;
 
-		unsigned char c_0_r = (*c_0 >> 11) & 0x1F;
-		unsigned char c_0_g = (*c_0 >> 5) & 0x3F;
-		unsigned char c_0_b = *c_0 & 0x1F;
+		uchar c_0_r = (*c_0 >> 11) & 0x1F;
+		uchar c_0_g = (*c_0 >> 5) & 0x3F;
+		uchar c_0_b = *c_0 & 0x1F;
 
-		unsigned char c_1_r = (*c_1 >> 11) & 0x1F;
-		unsigned char c_1_g = (*c_1 >> 5) & 0x3F;
-		unsigned char c_1_b = *c_1 & 0x1F;
+		uchar c_1_r = (*c_1 >> 11) & 0x1F;
+		uchar c_1_g = (*c_1 >> 5) & 0x3F;
+		uchar c_1_b = *c_1 & 0x1F;
 
 		RGBA8888 Colour0;
 		Colour0.R = LUT::LUT5[c_0_r];
@@ -273,18 +278,18 @@ void* xvtf::Tools::Codecs::DecompressDXT3(void* buffer, const unsigned int& offs
 		RGBA8888 Colour2 = Mix(Colour0, Colour1, 2, 1);
 		RGBA8888 Colour3 = Mix(Colour0, Colour1, 1, 2);
 
-		unsigned int Row = (b / (WIDTH / 4)) * 4;
-		unsigned int Col = (b % (WIDTH / 4)) * 4;
+		uint32 Row = (b / (WIDTH / 4)) * 4;
+		uint32 Col = (b % (WIDTH / 4)) * 4;
 
 		// For Each Row (in block)
-		for (unsigned int bR = 0; bR < 4; bR++)
+		for (uchar bR = 0; bR < 4; bR++)
 		{
-			unsigned char* cData = (unsigned char*)bPtr; bPtr += 1;
+			uchar* cData = (uchar*)bPtr; bPtr += 1;
 
 			// For Each Column (in block row)
-			for (unsigned int bC = 0; bC < 4; bC++)
+			for (uchar bC = 0; bC < 4; bC++)
 			{
-				unsigned char Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
+				uchar Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
 
 				RGBA8888 Colour;
 				if (Pix == 0b00)
@@ -305,20 +310,22 @@ void* xvtf::Tools::Codecs::DecompressDXT3(void* buffer, const unsigned int& offs
 	return (void*)rBuffer;
 }
 
-void* xvtf::Tools::Codecs::DecompressDXT5(void* buffer, const unsigned int& offset, const unsigned int& width, const unsigned int& height)
+void* xvtf::Codecs::DecompressDXT5(const void* buffer, addressable offset, uint16 width, uint16 height)
 {
-	const unsigned int WIDTH = width < 4 ? 4 : width;
-	const unsigned int HEIGHT = height < 4 ? 4 : height;
+	using namespace xvtf::PixelFormats;
+
+	uint32 WIDTH = width < 4 ? 4 : width;
+	uint32 HEIGHT = height < 4 ? 4 : height;
 
 	// Create Buffer
-	RGBA8888* rBuffer = new RGBA8888[WIDTH * HEIGHT];
-	unsigned char* bPtr = (unsigned char*)(buffer)+offset;
+	RGBA8888* rBuffer = (RGBA8888*)malloc(sizeof(RGBA8888) * WIDTH * HEIGHT);
+	uchar* bPtr = (uchar*)(buffer)+offset;
 
 	// For Each Block
-	for (unsigned int b = 0; b < (WIDTH * HEIGHT / 16); b++)
+	for (uint32 b = 0; b < (WIDTH * HEIGHT / 16); b++)
 	{
 		// Get Alphas
-		unsigned char A[8];
+		uchar A[8];
 		A[0] = *bPtr; ++bPtr;
 		A[1] = *bPtr; ++bPtr;
 		float af_0 = static_cast<float>(A[0]);
@@ -326,25 +333,25 @@ void* xvtf::Tools::Codecs::DecompressDXT5(void* buffer, const unsigned int& offs
 
 		if (A[0] > A[1])
 		{
-			A[2] = static_cast<unsigned char>(std::round((6 * af_0 + af_1) / 7));
-			A[3] = static_cast<unsigned char>(std::round((5 * af_0 + 2 * af_1) / 7));
-			A[4] = static_cast<unsigned char>(std::round((4 * af_0 + 3 * af_1) / 7));
-			A[5] = static_cast<unsigned char>(std::round((3 * af_0 + 4 * af_1) / 7));
-			A[6] = static_cast<unsigned char>(std::round((2 * af_0 + 5 * af_1) / 7));
-			A[7] = static_cast<unsigned char>(std::round((af_0 + 6 * af_1) / 7));
+			A[2] = static_cast<uchar>(std::round((6 * af_0 + af_1) / 7));
+			A[3] = static_cast<uchar>(std::round((5 * af_0 + 2 * af_1) / 7));
+			A[4] = static_cast<uchar>(std::round((4 * af_0 + 3 * af_1) / 7));
+			A[5] = static_cast<uchar>(std::round((3 * af_0 + 4 * af_1) / 7));
+			A[6] = static_cast<uchar>(std::round((2 * af_0 + 5 * af_1) / 7));
+			A[7] = static_cast<uchar>(std::round((af_0 + 6 * af_1) / 7));
 		}
 		else
 		{
-			A[2] = static_cast<unsigned char>(std::round((4 * af_0 + af_1) / 5));
-			A[3] = static_cast<unsigned char>(std::round((3 * af_0 + 2 * af_1) / 5));
-			A[4] = static_cast<unsigned char>(std::round((2 * af_0 + 3 * af_1) / 5));
-			A[5] = static_cast<unsigned char>(std::round((af_0 + 4 * af_1) / 5));
+			A[2] = static_cast<uchar>(std::round((4 * af_0 + af_1) / 5));
+			A[3] = static_cast<uchar>(std::round((3 * af_0 + 2 * af_1) / 5));
+			A[4] = static_cast<uchar>(std::round((2 * af_0 + 3 * af_1) / 5));
+			A[5] = static_cast<uchar>(std::round((af_0 + 4 * af_1) / 5));
 			A[6] = 0x0;
 			A[7] = 0xFF;
 		}
 
 		// Get Alphas
-		unsigned char PixA[16];
+		uchar PixA[16];
 		
 		bPtr += 5;
 		PixA[15] = A[(*bPtr & 0b11100000) >> 5];
@@ -373,16 +380,16 @@ void* xvtf::Tools::Codecs::DecompressDXT5(void* buffer, const unsigned int& offs
 		PixA[0] = A[(*bPtr & 0b00000111)];
 		bPtr += 6;
 
-		unsigned short* c_0 = (unsigned short*)bPtr; bPtr += 2;
-		unsigned short* c_1 = (unsigned short*)bPtr; bPtr += 2;
+		uint16* c_0 = (uint16*)bPtr; bPtr += 2;
+		uint16* c_1 = (uint16*)bPtr; bPtr += 2;
 
-		unsigned char c_0_r = (*c_0 >> 11) & 0x1F;
-		unsigned char c_0_g = (*c_0 >> 5) & 0x3F;
-		unsigned char c_0_b = *c_0 & 0x1F;
+		uchar c_0_r = (*c_0 >> 11) & 0x1F;
+		uchar c_0_g = (*c_0 >> 5) & 0x3F;
+		uchar c_0_b = *c_0 & 0x1F;
 
-		unsigned char c_1_r = (*c_1 >> 11) & 0x1F;
-		unsigned char c_1_g = (*c_1 >> 5) & 0x3F;
-		unsigned char c_1_b = *c_1 & 0x1F;
+		uchar c_1_r = (*c_1 >> 11) & 0x1F;
+		uchar c_1_g = (*c_1 >> 5) & 0x3F;
+		uchar c_1_b = *c_1 & 0x1F;
 
 		RGBA8888 Colour0;
 		Colour0.R = LUT::LUT5[c_0_r];
@@ -397,18 +404,18 @@ void* xvtf::Tools::Codecs::DecompressDXT5(void* buffer, const unsigned int& offs
 		RGBA8888 Colour2 = Mix(Colour0, Colour1, 2, 1);
 		RGBA8888 Colour3 = Mix(Colour0, Colour1, 1, 2);
 
-		unsigned int Row = (b / (WIDTH / 4)) * 4;
-		unsigned int Col = (b % (WIDTH / 4)) * 4;
+		uint32 Row = (b / (WIDTH / 4)) * 4;
+		uint32 Col = (b % (WIDTH / 4)) * 4;
 
 		// For Each Row (in block)
-		for (unsigned int bR = 0; bR < 4; bR++)
+		for (uchar bR = 0; bR < 4; bR++)
 		{
-			unsigned char* cData = (unsigned char*)bPtr; bPtr += 1;
+			uchar* cData = (uchar*)bPtr; bPtr += 1;
 
 			// For Each Column (in block row)
-			for (unsigned int bC = 0; bC < 4; bC++)
+			for (uchar bC = 0; bC < 4; bC++)
 			{
-				unsigned char Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
+				uchar Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
 
 				RGBA8888 Colour;
 				if (Pix == 0b00)

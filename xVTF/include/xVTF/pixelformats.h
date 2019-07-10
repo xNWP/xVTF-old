@@ -1,169 +1,172 @@
+//============ Copyright © 2019 Brett Anthony. All rights reserved. ============
+///
+/// This work is licensed under the terms of the MIT license.
+/// For a copy, see <https://opensource.org/licenses/MIT>.
+//==============================================================================
+/// @file pixelformats.h
+/// @brief Defines structs for each pixel format the vtf format supports.
+//==============================================================================
+
 #ifndef XVTF_PIXELFORMATS_H__
 #define XVTF_PIXELFORMATS_H__
 
-#include "xVTF/half_precision_float.h"
+#include "xVTF/types.h"
 
 namespace xvtf
 {
-	namespace Bitmap
+	namespace PixelFormats
 	{
-		namespace PixelFormats
+		struct RGB888
 		{
-			struct RGB888
-			{
-				unsigned char R;
-				unsigned char G;
-				unsigned char B;
-			};
+			uchar R;
+			uchar G;
+			uchar B;
+		};
 
-			struct RGBA8888 : public RGB888
-			{
-				unsigned char A;
-			};
+		struct RGBA8888 : public RGB888
+		{
+			uchar A;
+		};
 
-			struct ABGR8888
-			{
-				unsigned char A;
-				unsigned char B;
-				unsigned char G;
-				unsigned char R;
-			};
+		struct ABGR8888
+		{
+			uchar A;
+			uchar B;
+			uchar G;
+			uchar R;
+		};
 
-			struct BGR888
-			{
-				unsigned char B;
-				unsigned char G;
-				unsigned char R;
-			};
+		struct BGR888
+		{
+			uchar B;
+			uchar G;
+			uchar R;
+		};
 
-			struct RGB565
-			{
-				unsigned short int R : 5;
-				unsigned short int G : 6;
-				unsigned short int B : 5;
-			};
+		struct RGB565
+		{
+			uint16 R : 5;
+			uint16 G : 6;
+			uint16 B : 5;
+		};
 
-			struct BGR565
-			{
-				unsigned short int B : 5;
-				unsigned short int G : 6;
-				unsigned short int R : 5;
-			};
+		struct BGR565
+		{
+			uint16 B : 5;
+			uint16 G : 6;
+			uint16 R : 5;
+		};
 
-			struct A8
-			{
-				unsigned char A;
-			};
+		struct A8
+		{
+			uchar A;
+		};
 
-			struct UV88
-			{
-				unsigned char U;
-				unsigned char V;
-			};
+		struct UV88
+		{
+			uchar U;
+			uchar V;
+		};
 
-			struct ARGB8888
-			{
-				unsigned char A;
-				unsigned char R;
-				unsigned char G;
-				unsigned char B;
-			};
+		struct ARGB8888
+		{
+			uchar A;
+			uchar R;
+			uchar G;
+			uchar B;
+		};
 
-			struct BGRA4444
-			{
-				unsigned short int B : 4;
-				unsigned short int G : 4;
-				unsigned short int R : 4;
-				unsigned short int A : 4;
-			};
+		struct BGRA4444
+		{
+			uint16 B : 4;
+			uint16 G : 4;
+			uint16 R : 4;
+			uint16 A : 4;
+		};
 
-			struct BGRA5551
-			{
-				unsigned short int B : 5;
-				unsigned short int G : 5;
-				unsigned short int R : 5;
-				unsigned short int A : 1;
-			};
+		struct BGRA5551
+		{
+			uint16 B : 5;
+			uint16 G : 5;
+			uint16 R : 5;
+			uint16 A : 1;
+		};
 
-			struct BGRA8888
-			{
-				unsigned char B;
-				unsigned char G;
-				unsigned char R;
-				unsigned char A;
-			};
+		struct BGRA8888
+		{
+			uchar B;
+			uchar G;
+			uchar R;
+			uchar A;
+		};
 
-			struct BGRX5551
-			{
-				unsigned short int B : 5;
-				unsigned short int G : 5;
-				unsigned short int R : 5;
-				unsigned short int X : 1;
-			};
+		struct BGRX5551
+		{
+			uint16 B : 5;
+			uint16 G : 5;
+			uint16 R : 5;
+			uint16 X : 1;
+		};
 
-			struct BGRX8888
-			{
-				unsigned char B;
-				unsigned char G;
-				unsigned char R;
-				unsigned char X;
-			};
+		struct BGRX8888
+		{
+			uchar B;
+			uchar G;
+			uchar R;
+			uchar X;
+		};
 
-			struct RGBA8881
-			{
-				unsigned char R;
-				unsigned char G;
-				unsigned char B;
-				unsigned char A : 1;
-			};
+		struct RGBA8881
+		{
+			uchar R;
+			uchar G;
+			uchar B;
+			uchar A : 1;
+		};
 
-			struct I8
-			{
-				unsigned char I;
-			};
+		struct I8
+		{
+			uchar I;
+		};
 
-			struct IA88 : public I8
-			{
-				unsigned char A;
-			};
+		struct IA88 : public I8
+		{
+			uchar A;
+		};
 
-			struct P8
-			{
-				unsigned char P;
-			};
+		struct P8
+		{
+			uchar P;
+		};
 
-			struct RGBA16161616
-			{
-				unsigned short int R;
-				unsigned short int G;
-				unsigned short int B;
-				unsigned short int A;
-			};
+		struct RGBA16161616
+		{
+			uint16 R;
+			uint16 G;
+			uint16 B;
+			uint16 A;
+		};
 
-			struct RGBA16161616F
-			{
-				xvtf::half R;
-				xvtf::half G;
-				xvtf::half B;
-				xvtf::half A;
-			};
+		struct RGBA16161616F
+		{
+			// todo
+		};
 
-			struct UVLX8888
-			{
-				unsigned char U;
-				unsigned char V;
-				unsigned char L;
-				unsigned char X;
-			};
+		struct UVLX8888
+		{
+			uchar U;
+			uchar V;
+			uchar L;
+			uchar X;
+		};
 
-			struct UVWQ8888
-			{
-				unsigned char U;
-				unsigned char V;
-				unsigned char W;
-				unsigned char Q;
-			};
-		}
+		struct UVWQ8888
+		{
+			uchar U;
+			uchar V;
+			uchar W;
+			uchar Q;
+		};
 	}
 }
 
