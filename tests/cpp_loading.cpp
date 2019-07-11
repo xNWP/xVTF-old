@@ -234,7 +234,49 @@ int TestDXT5()
 	return 0;
 }
 
+int TestUncompressed()
+{
+	std::string s = DATASETDIR;
+	s += "/32x32_RGBA8888.raw";
+
+	auto input = fopen(s.c_str(), "rb");
+	if (!input) { UNKNOWN_ERROR; }
+
+	RGBA8888* iBuffer = new RGBA8888[32 * 32];
+	fread(iBuffer, sizeof(RGBA8888), 32 * 32, input);
+	fclose(input);
+
+	std::string s2 = DATASETDIR;
+	s2 += "/32x32_RGBA8888.vtf";
+
+	ERRORCODE err;
+
+	auto vtf = VTFFile::Alloc(s2.c_str(), false, &err);
+
+	ASSERT_ERRORCODE_NONE(err);
+
+	auto BMP = vtf->GetImage(0, 0, 0, 0, &err);
+	VTFFile::Free(vtf);
+
+	ASSERT_ERRORCODE_NONE(err);
+
+	for (addressable i = 0; i < 32 * 32; ++i)
+	{
+		auto val = *(RGBA8888*)BMP->at(i);
+		ASSERT_EQUAL(val.R, iBuffer[i].R);
+		ASSERT_EQUAL(val.G, iBuffer[i].G);
+		ASSERT_EQUAL(val.B, iBuffer[i].B);
+		ASSERT_EQUAL(val.A, iBuffer[i].A);
+	}
+
+	delete[] iBuffer;
+
+	BitmapImage::Free(BMP);
+
+	return 0;
+}
+
 int main()
 {
-	return TestDXT1() | TestDXT3() | TestDXT5();
+	return TestDXT1() | TestDXT3() | TestDXT5() | TestUncompressed();
 }
