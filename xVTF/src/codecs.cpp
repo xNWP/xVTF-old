@@ -78,7 +78,82 @@ xvtf::PixelFormats::RGBA8888 xvtf::Codecs::Mix(const xvtf::PixelFormats::RGBA888
 	return RVAL;
 }
 
-void* xvtf::Codecs::DecompressDXT1(const void* buffer, addressable offset, uint16 width, uint16 height)
+xvtf::PixelFormats::RGB565 xvtf::Codecs::Mix(const xvtf::PixelFormats::RGB565& _A, const xvtf::PixelFormats::RGB565& _B, uint32 PartsA, uint32 PartsB)
+{
+	float A_R = static_cast<float>(_A.R);
+	float A_G = static_cast<float>(_A.G);
+	float A_B = static_cast<float>(_A.B);
+
+	float B_R = static_cast<float>(_B.R);
+	float B_G = static_cast<float>(_B.G);
+	float B_B = static_cast<float>(_B.B);
+
+	float R_R = ((PartsA * A_R) + (PartsB * B_R)) / (PartsA + PartsB);
+	float R_G = ((PartsA * A_G) + (PartsB * B_G)) / (PartsA + PartsB);
+	float R_B = ((PartsA * A_B) + (PartsB * B_B)) / (PartsA + PartsB);
+
+	/* Normalize Values */
+	R_R = ceilf(R_R);
+	R_G = ceilf(R_G);
+	R_B = ceilf(R_B);
+
+	if (R_R > 31.0f)
+		R_R = 31;
+	if (R_G > 63.0)
+		R_G = 63;
+	if (R_B > 31.0f)
+		R_B = 31;
+
+	xvtf::PixelFormats::RGB565 RVAL;
+	RVAL.R = static_cast<uint16>(R_R);
+	RVAL.G = static_cast<uint16>(R_G);
+	RVAL.B = static_cast<uint16>(R_B);
+
+	return RVAL;
+}
+
+xvtf::PixelFormats::RGBA5651 xvtf::Codecs::Mix(const xvtf::PixelFormats::RGBA5651& _A, const xvtf::PixelFormats::RGBA5651& _B, uint32 PartsA, uint32 PartsB)
+{
+	float A_R = static_cast<float>(_A.R);
+	float A_G = static_cast<float>(_A.G);
+	float A_B = static_cast<float>(_A.B);
+	float A_A = static_cast<float>(_A.A);
+
+	float B_R = static_cast<float>(_B.R);
+	float B_G = static_cast<float>(_B.G);
+	float B_B = static_cast<float>(_B.B);
+	float B_A = static_cast<float>(_B.A);
+
+	float R_R = ((PartsA * A_R) + (PartsB * B_R)) / (PartsA + PartsB);
+	float R_G = ((PartsA * A_G) + (PartsB * B_G)) / (PartsA + PartsB);
+	float R_B = ((PartsA * A_B) + (PartsB * B_B)) / (PartsA + PartsB);
+	float R_A = ((PartsA * A_A) + (PartsB * B_A)) / (PartsA + PartsB);
+
+	/* Normalize Values */
+	R_R = ceilf(R_R);
+	R_G = ceilf(R_G);
+	R_B = ceilf(R_B);
+	R_A = ceilf(R_A);
+
+	if (R_R > 31.0f)
+		R_R = 31;
+	if (R_G > 63.0)
+		R_G = 63;
+	if (R_B > 31.0f)
+		R_B = 31;
+	if (R_B > 1.0f)
+		R_B = 1;
+
+	xvtf::PixelFormats::RGBA5651 RVAL;
+	RVAL.R = static_cast<uint16>(R_R);
+	RVAL.G = static_cast<uint16>(R_G);
+	RVAL.B = static_cast<uint16>(R_B);
+	RVAL.A = static_cast<uchar>(R_A);
+
+	return RVAL;
+}
+
+xvtf::PixelFormats::RGB565* xvtf::Codecs::DecompressDXT1(const void* buffer, addressable offset, uint16 width, uint16 height)
 {
 	using namespace xvtf::PixelFormats;
 
@@ -86,7 +161,7 @@ void* xvtf::Codecs::DecompressDXT1(const void* buffer, addressable offset, uint1
 	uint32 HEIGHT = height < 4 ? 4 : height;
 
 	// Create Buffer
-	RGB888* rBuffer = (RGB888*)malloc(sizeof(RGB888) * WIDTH * HEIGHT);
+	RGB565* rBuffer = (RGB565*)malloc(sizeof(RGB565) * WIDTH * HEIGHT);
 	uchar* bPtr = (uchar*)(buffer) + offset;
 
 	// For Each Block
@@ -103,18 +178,18 @@ void* xvtf::Codecs::DecompressDXT1(const void* buffer, addressable offset, uint1
 		uchar c_1_g = (*c_1 >> 5) & 0x3F;
 		uchar c_1_b = *c_1 & 0x1F;
 
-		RGB888 Colour0;
-		Colour0.R = LUT::LUT5[c_0_r];
-		Colour0.G = LUT::LUT6[c_0_g];
-		Colour0.B = LUT::LUT5[c_0_b];
+		RGB565 Colour0;
+		Colour0.R = c_0_r;
+		Colour0.G = c_0_g;
+		Colour0.B = c_0_b;
 
-		RGB888 Colour1;
-		Colour1.R = LUT::LUT5[c_1_r];
-		Colour1.G = LUT::LUT6[c_1_g];
-		Colour1.B = LUT::LUT5[c_1_b];
+		RGB565 Colour1;
+		Colour1.R = c_1_r;
+		Colour1.G = c_1_g;
+		Colour1.B = c_1_b;
 
-		RGB888 Colour2 = Mix(Colour0, Colour1, 2, 1);
-		RGB888 Colour3 = Mix(Colour0, Colour1, 1, 2);
+		RGB565 Colour2 = Mix(Colour0, Colour1, 2, 1);
+		RGB565 Colour3 = Mix(Colour0, Colour1, 1, 2);
 
 		uint32 Row = (b / (WIDTH / 4)) * 4;
 		uint32 Col = (b % (WIDTH / 4)) * 4;
@@ -129,7 +204,7 @@ void* xvtf::Codecs::DecompressDXT1(const void* buffer, addressable offset, uint1
 			{
 				uchar Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
 				
-				RGB888 Colour;
+				RGB565 Colour;
 				if (Pix == 0b00)
 					Colour = Colour0;
 				else if (Pix == 0b01)
@@ -144,10 +219,10 @@ void* xvtf::Codecs::DecompressDXT1(const void* buffer, addressable offset, uint1
 		}
 	}
 
-	return (void*)rBuffer;
+	return rBuffer;
 }
 
-void* xvtf::Codecs::DecompressDXT1_ONEBITALPHA(const void* buffer, addressable offset, uint16 width, uint16 height)
+xvtf::PixelFormats::RGBA5651* xvtf::Codecs::DecompressDXT1_ONEBITALPHA(const void* buffer, addressable offset, uint16 width, uint16 height)
 {
 	using namespace xvtf::PixelFormats;
 
@@ -155,7 +230,7 @@ void* xvtf::Codecs::DecompressDXT1_ONEBITALPHA(const void* buffer, addressable o
 	uint32 HEIGHT = height < 4 ? 4 : height;
 
 	// Create Buffer
-	RGBA8888* rBuffer = (RGBA8888*)malloc(sizeof(RGBA8888) * WIDTH * HEIGHT);
+	RGBA5651* rBuffer = (RGBA5651*)malloc(sizeof(RGBA5651) * WIDTH * HEIGHT);
 	uchar* bPtr = (uchar*)(buffer)+offset;
 
 	// For Each Block
@@ -172,19 +247,19 @@ void* xvtf::Codecs::DecompressDXT1_ONEBITALPHA(const void* buffer, addressable o
 		uchar c_1_g = (*c_1 >> 5) & 0x3F;
 		uchar c_1_b = *c_1 & 0x1F;
 
-		RGBA8888 Colour0;
-		Colour0.R = LUT::LUT5[c_0_r];
-		Colour0.G = LUT::LUT6[c_0_g];
-		Colour0.B = LUT::LUT5[c_0_b];
-		Colour0.A = 0xFF;
+		RGBA5651 Colour0;
+		Colour0.R = c_0_r;
+		Colour0.G = c_0_g;
+		Colour0.B = c_0_b;
+		Colour0.A = 0x01;
 
-		RGBA8888 Colour1;
-		Colour1.R = LUT::LUT5[c_1_r];
-		Colour1.G = LUT::LUT6[c_1_g];
-		Colour1.B = LUT::LUT5[c_1_b];
-		Colour1.A = 0xFF;
+		RGBA5651 Colour1;
+		Colour1.R = c_1_r;
+		Colour1.G = c_1_g;
+		Colour1.B = c_1_b;
+		Colour1.A = 0x01;
 
-		RGBA8888 Colour2, Colour3;
+		RGBA5651 Colour2, Colour3;
 
 		// 4 Colour Mode (No Transparency)
 		if (*c_0 > *c_1)
@@ -211,7 +286,7 @@ void* xvtf::Codecs::DecompressDXT1_ONEBITALPHA(const void* buffer, addressable o
 			{
 				uchar Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
 
-				RGBA8888 Colour;
+				RGBA5651 Colour;
 				if (Pix == 0b00)
 					Colour = Colour0;
 				else if (Pix == 0b01)
@@ -226,10 +301,10 @@ void* xvtf::Codecs::DecompressDXT1_ONEBITALPHA(const void* buffer, addressable o
 		}
 	}
 
-	return (void*)rBuffer;
+	return rBuffer;
 }
 
-void* xvtf::Codecs::DecompressDXT3(const void* buffer, addressable offset, uint16 width, uint16 height)
+xvtf::PixelFormats::RGBA5654* xvtf::Codecs::DecompressDXT3(const void* buffer, addressable offset, uint16 width, uint16 height)
 {
 	using namespace xvtf::PixelFormats;
 
@@ -237,7 +312,7 @@ void* xvtf::Codecs::DecompressDXT3(const void* buffer, addressable offset, uint1
 	uint32 HEIGHT = height < 4 ? 4 : height;
 
 	// Create Buffer
-	RGBA8888* rBuffer = (RGBA8888*)malloc(sizeof(RGBA8888) * WIDTH * HEIGHT);
+	RGBA5654* rBuffer = (RGBA5654*)malloc(sizeof(RGBA5654) * WIDTH * HEIGHT);
 	uchar* bPtr = (uchar*)(buffer)+offset;
 
 	// For Each Block
@@ -248,10 +323,10 @@ void* xvtf::Codecs::DecompressDXT3(const void* buffer, addressable offset, uint1
 		for (uchar i = 0; i < 4; ++i)
 		{
 			uint16* VAL = (uint16*)bPtr; bPtr += 2;
-			A[i * 4] = LUT::LUT4[(*VAL >> 12) & 0xF];
-			A[i * 4 + 1] = LUT::LUT4[(*VAL >> 8) & 0xF];
-			A[i * 4 + 2] = LUT::LUT4[(*VAL >> 4) & 0xF];
-			A[i * 4 + 3] = LUT::LUT4[*VAL & 0xF];
+			A[i * 4] = (*VAL >> 12) & 0xF;
+			A[i * 4 + 1] = (*VAL >> 8) & 0xF;
+			A[i * 4 + 2] = (*VAL >> 4) & 0xF;
+			A[i * 4 + 3] = *VAL & 0xF;
 		}
 
 		uint16* c_0 = (uint16*)bPtr; bPtr += 2;
@@ -265,18 +340,18 @@ void* xvtf::Codecs::DecompressDXT3(const void* buffer, addressable offset, uint1
 		uchar c_1_g = (*c_1 >> 5) & 0x3F;
 		uchar c_1_b = *c_1 & 0x1F;
 
-		RGBA8888 Colour0;
-		Colour0.R = LUT::LUT5[c_0_r];
-		Colour0.G = LUT::LUT6[c_0_g];
-		Colour0.B = LUT::LUT5[c_0_b];
+		RGB565 Colour0;
+		Colour0.R = c_0_r;
+		Colour0.G = c_0_g;
+		Colour0.B = c_0_b;
 
-		RGBA8888 Colour1;
-		Colour1.R = LUT::LUT5[c_1_r];
-		Colour1.G = LUT::LUT6[c_1_g];
-		Colour1.B = LUT::LUT5[c_1_b];
+		RGB565 Colour1;
+		Colour1.R = c_1_r;
+		Colour1.G = c_1_g;
+		Colour1.B = c_1_b;
 
-		RGBA8888 Colour2 = Mix(Colour0, Colour1, 2, 1);
-		RGBA8888 Colour3 = Mix(Colour0, Colour1, 1, 2);
+		RGB565 Colour2 = Mix(Colour0, Colour1, 2, 1);
+		RGB565 Colour3 = Mix(Colour0, Colour1, 1, 2);
 
 		uint32 Row = (b / (WIDTH / 4)) * 4;
 		uint32 Col = (b % (WIDTH / 4)) * 4;
@@ -291,15 +366,31 @@ void* xvtf::Codecs::DecompressDXT3(const void* buffer, addressable offset, uint1
 			{
 				uchar Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
 
-				RGBA8888 Colour;
+				RGBA5654 Colour;
 				if (Pix == 0b00)
-					Colour = Colour0;
+				{
+					Colour.R = Colour0.R;
+					Colour.G = Colour0.G;
+					Colour.B = Colour0.B;
+				}
 				else if (Pix == 0b01)
-					Colour = Colour1;
+				{
+					Colour.R = Colour1.R;
+					Colour.G = Colour1.G;
+					Colour.B = Colour1.B;
+				}
 				else if (Pix == 0b10)
-					Colour = Colour2;
+				{
+					Colour.R = Colour2.R;
+					Colour.G = Colour2.G;
+					Colour.B = Colour2.B;
+				}
 				else
-					Colour = Colour3;
+				{
+					Colour.R = Colour3.R;
+					Colour.G = Colour3.G;
+					Colour.B = Colour3.B;
+				}
 				Colour.A = A[4 * bR + bC];
 
 				*(rBuffer + ((Row + bR) * WIDTH) + (Col + (3 - bC))) = Colour;
@@ -307,10 +398,10 @@ void* xvtf::Codecs::DecompressDXT3(const void* buffer, addressable offset, uint1
 		}
 	}
 
-	return (void*)rBuffer;
+	return rBuffer;
 }
 
-void* xvtf::Codecs::DecompressDXT5(const void* buffer, addressable offset, uint16 width, uint16 height)
+xvtf::PixelFormats::RGBA5658* xvtf::Codecs::DecompressDXT5(const void* buffer, addressable offset, uint16 width, uint16 height)
 {
 	using namespace xvtf::PixelFormats;
 
@@ -318,7 +409,7 @@ void* xvtf::Codecs::DecompressDXT5(const void* buffer, addressable offset, uint1
 	uint32 HEIGHT = height < 4 ? 4 : height;
 
 	// Create Buffer
-	RGBA8888* rBuffer = (RGBA8888*)malloc(sizeof(RGBA8888) * WIDTH * HEIGHT);
+	RGBA5658* rBuffer = (RGBA5658*)malloc(sizeof(RGBA5658) * WIDTH * HEIGHT);
 	uchar* bPtr = (uchar*)(buffer)+offset;
 
 	// For Each Block
@@ -391,18 +482,18 @@ void* xvtf::Codecs::DecompressDXT5(const void* buffer, addressable offset, uint1
 		uchar c_1_g = (*c_1 >> 5) & 0x3F;
 		uchar c_1_b = *c_1 & 0x1F;
 
-		RGBA8888 Colour0;
-		Colour0.R = LUT::LUT5[c_0_r];
-		Colour0.G = LUT::LUT6[c_0_g];
-		Colour0.B = LUT::LUT5[c_0_b];
+		RGB565 Colour0;
+		Colour0.R = c_0_r;
+		Colour0.G = c_0_g;
+		Colour0.B = c_0_b;
 
-		RGBA8888 Colour1;
-		Colour1.R = LUT::LUT5[c_1_r];
-		Colour1.G = LUT::LUT6[c_1_g];
-		Colour1.B = LUT::LUT5[c_1_b];
+		RGB565 Colour1;
+		Colour1.R = c_1_r;
+		Colour1.G = c_1_g;
+		Colour1.B = c_1_b;
 
-		RGBA8888 Colour2 = Mix(Colour0, Colour1, 2, 1);
-		RGBA8888 Colour3 = Mix(Colour0, Colour1, 1, 2);
+		RGB565 Colour2 = Mix(Colour0, Colour1, 2, 1);
+		RGB565 Colour3 = Mix(Colour0, Colour1, 1, 2);
 
 		uint32 Row = (b / (WIDTH / 4)) * 4;
 		uint32 Col = (b % (WIDTH / 4)) * 4;
@@ -417,16 +508,31 @@ void* xvtf::Codecs::DecompressDXT5(const void* buffer, addressable offset, uint1
 			{
 				uchar Pix = (*cData & (0b11000000 >> (bC * 2))) >> ((3 - bC) * 2);
 
-				RGBA8888 Colour;
+				RGBA5658 Colour;
 				if (Pix == 0b00)
-					Colour = Colour0;
+				{
+					Colour.R = Colour0.R;
+					Colour.G = Colour0.G;
+					Colour.B = Colour0.B;
+				}
 				else if (Pix == 0b01)
-					Colour = Colour1;
+				{
+					Colour.R = Colour1.R;
+					Colour.G = Colour1.G;
+					Colour.B = Colour1.B;
+				}
 				else if (Pix == 0b10)
-					Colour = Colour2;
+				{
+					Colour.R = Colour2.R;
+					Colour.G = Colour2.G;
+					Colour.B = Colour2.B;
+				}
 				else
-					Colour = Colour3;
-
+				{
+					Colour.R = Colour3.R;
+					Colour.G = Colour3.G;
+					Colour.B = Colour3.B;
+				}
 				Colour.A = PixA[bR * 4 + (3 - bC)];
 
 				*(rBuffer + ((Row + bR) * WIDTH) + (Col + (3 - bC))) = Colour;
@@ -434,5 +540,5 @@ void* xvtf::Codecs::DecompressDXT5(const void* buffer, addressable offset, uint1
 		}
 	}
 
-	return (void*)rBuffer;
+	return rBuffer;
 }

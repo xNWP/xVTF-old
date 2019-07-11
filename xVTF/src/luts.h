@@ -70,14 +70,14 @@ namespace xvtf
 			3,					// BGR888_BLUESCREEN
 			4,					// ARGB8888
 			4,					// BGRA8888
-			3,					// DXT1
-			4,					// DXT3
-			4,					// DXT5
+			2,					// DXT1
+			3,					// DXT3
+			3,					// DXT5
 			4,					// BGRX8888
 			2,					// BGR565
 			2,					// BGRX5551
 			2,					// BGRA4444
-			4,					// DXT1_ONEBITALPHA
+			3,					// DXT1_ONEBITALPHA
 			2,					// BGRA5551
 			2,					// UV88
 			4,					// UVWQ8888

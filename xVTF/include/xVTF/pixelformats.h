@@ -12,6 +12,8 @@
 
 #include "xVTF/types.h"
 
+#pragma pack(push, 1)
+
 namespace xvtf
 {
 	namespace PixelFormats
@@ -48,6 +50,21 @@ namespace xvtf
 			uint16 R : 5;
 			uint16 G : 6;
 			uint16 B : 5;
+		};
+
+		struct RGBA5651 : RGB565
+		{
+			uchar A : 1;
+		};
+
+		struct RGBA5654 : RGB565
+		{
+			uchar A : 4;
+		};
+
+		struct RGBA5658 : RGB565
+		{
+			uchar A;
 		};
 
 		struct BGR565
@@ -169,5 +186,7 @@ namespace xvtf
 		};
 	}
 }
+
+#pragma pack(pop)
 
 #endif // !XVTF_PIXELFORMATS_H__

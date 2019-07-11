@@ -23,5 +23,13 @@
 #		pragma message("Using xVTF in DLL Mode. If you are trying to use xVTF as a Static Library, define 'XVTF_STATIC' before including xVTF.h")
 #	endif
 #endif
+namespace xvtf
+{
+	//----------------------------------------------------------------------------------------------------
+	/// Returns the version of the xVTF library, also useful for checking linkage!
+	/// @return float				The version of the library.
+	//----------------------------------------------------------------------------------------------------
+	XVTFAPI extern float WhatVersion();
+}
 
 #endif // !XVTF_H__

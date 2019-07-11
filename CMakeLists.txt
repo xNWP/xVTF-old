@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(xVTF	VERSION 100
+project(xVTF	VERSION 1.0
 				DESCRIPTION "A C/C++ library for opening/saving/manipulating Valve Texture Format (VTF) Images."
 				LANGUAGES CXX)
 
@@ -13,6 +13,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 add_subdirectory(xVTF)
+add_subdirectory(tests)
 add_subdirectory(dev_test)
 
 # Standards
@@ -31,3 +32,11 @@ cxx_lambdas
 cxx_auto_type
 cxx_rvalue_references
 )
+
+# tests
+add_test(TestCPPLinkage test_cpp_linkage)
+add_test(TestCPPLoading test_cpp_loading)
+
+enable_testing()
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)

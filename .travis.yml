@@ -10,12 +10,12 @@ addons:
             - g++-9
 
 stages:
-  - build
+  - build and test
 
 jobs:
   include:
       # Linux 64-bit
-    - stage: build
+    - stage: build and test
       name: Linux 64-bit
       os: linux
       install: &install_linux
@@ -31,9 +31,10 @@ jobs:
         - mkdir build && cd build
         - cmake ${TOOLCHAIN} ..
         - make all
+        - ctest --verbose
 
       # Linux 32-bit
-    - stage: build
+    - stage: build and test
       name: Linux 32-bit
       os: linux
       install: *install_linux
@@ -46,7 +47,7 @@ jobs:
         - TOOLCHAIN="x86-toolchain.cmake"
 
       # Windows 64-bit
-    - stage: build
+    - stage: build and test
       name: Windows 64-bit
       os: windows
       install: &install_windows
@@ -57,9 +58,10 @@ jobs:
         - mkdir build && cd build
         - cmake -G "Visual Studio 15 2017${ARCH}" ..
         - cmake --build .
+        - ctest --verbose
 
       # Windows 32-bit
-    - stage: build
+    - stage: build and test
       name: Windows 32-bit
       os: windows
       install: *install_windows

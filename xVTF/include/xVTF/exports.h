@@ -32,6 +32,6 @@
 #	endif
 #endif
 
-#define XVTF_VERSION 100
+#define XVTF_VERSION 1.0
 
 #endif // !XVTF_EXPORTS_H__

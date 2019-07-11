@@ -33,9 +33,29 @@ namespace xvtf
 		/// @param[in] _B			The second colour to mix.
 		/// @param[in] PartsA		How many parts of _A to mix in.
 		/// @param[in] PartsB		How many parts of _B to mix in.
-		/// @return RGBA8888			The blended colour.
+		/// @return RGBA8888		The blended colour.
 		//----------------------------------------------------------------------------------------------------
 		PixelFormats::RGBA8888 Mix(const PixelFormats::RGBA8888& _A, const PixelFormats::RGBA8888& _B, uint32 PartsA, uint32 PartsB);
+
+		//----------------------------------------------------------------------------------------------------
+		/// Mixes two RGB565 values together.
+		/// @param[in] _A			The first colour to mix.
+		/// @param[in] _B			The second colour to mix.
+		/// @param[in] PartsA		How many parts of _A to mix in.
+		/// @param[in] PartsB		How many parts of _B to mix in.
+		/// @return RGB565			The blended colour.
+		//----------------------------------------------------------------------------------------------------
+		PixelFormats::RGB565 Mix(const PixelFormats::RGB565& _A, const PixelFormats::RGB565& _B, uint32 PartsA, uint32 PartsB);
+
+		//----------------------------------------------------------------------------------------------------
+		/// Mixes two RGBA5651 values together.
+		/// @param[in] _A			The first colour to mix.
+		/// @param[in] _B			The second colour to mix.
+		/// @param[in] PartsA		How many parts of _A to mix in.
+		/// @param[in] PartsB		How many parts of _B to mix in.
+		/// @return RGBA5651		The blended colour.
+		//----------------------------------------------------------------------------------------------------
+		PixelFormats::RGBA5651 Mix(const PixelFormats::RGBA5651& _A, const PixelFormats::RGBA5651& _B, uint32 PartsA, uint32 PartsB);
 
 		//----------------------------------------------------------------------------------------------------
 		/// Decompresses a DXT1 (no alpha) file and returns a pointer to an array of RGB values.
@@ -43,9 +63,9 @@ namespace xvtf
 		/// @param[in] offset						Where in the buffer to start reading the data from.
 		/// @param[in] width						Width of the image in pixels.
 		/// @param[in] height						Height of the image in pixels.
-		/// @return void*							The decompressed RGB888 values as an array of size width * height.
+		/// @return RGB565*							The decompressed RGB565 values as an array of size width * height.
 		//----------------------------------------------------------------------------------------------------
-		void* DecompressDXT1(const void* buffer, addressable offset, uint16 width, uint16 height);
+		PixelFormats::RGB565* DecompressDXT1(const void* buffer, addressable offset, uint16 width, uint16 height);
 
 		//----------------------------------------------------------------------------------------------------
 		/// Decompresses a DXT1 (1-bit alpha) file and returns a pointer to an array of RGBA values.
@@ -53,9 +73,9 @@ namespace xvtf
 		/// @param[in] offset						Where in the buffer to start reading the data from.
 		/// @param[in] width						Width of the image in pixels.
 		/// @param[in] height						Height of the image in pixels.
-		/// @return void*							The decompressed RGBA8888 values as an array of size width * height.
+		/// @return RGBA5651*						The decompressed RGBA5651 values as an array of size width * height.
 		//----------------------------------------------------------------------------------------------------
-		void* DecompressDXT1_ONEBITALPHA(const void* buffer, addressable offset, uint16 width, uint16 height);
+		PixelFormats::RGBA5651* DecompressDXT1_ONEBITALPHA(const void* buffer, addressable offset, uint16 width, uint16 height);
 
 		//----------------------------------------------------------------------------------------------------
 		/// Decompresses a DXT3 (4-bit alpha) file and returns a pointer to an array of RGBA values.
@@ -63,9 +83,9 @@ namespace xvtf
 		/// @param[in] offset						Where in the buffer to start reading the data from.
 		/// @param[in] width						Width of the image in pixels.
 		/// @param[in] height						Height of the image in pixels.
-		/// @return void*							The decompressed RGBA8888 values as an array of size width * height.
+		/// @return RGBA5654*						The decompressed RGBA5654 values as an array of size width * height.
 		//----------------------------------------------------------------------------------------------------
-		void* DecompressDXT3(const void* buffer, addressable offset, uint16 width, uint16 height);
+		PixelFormats::RGBA5654* DecompressDXT3(const void* buffer, addressable offset, uint16 width, uint16 height);
 
 		//----------------------------------------------------------------------------------------------------
 		/// Decompresses a DXT5 (paletted alpha) file and returns a pointer to an array of RGBA values.
@@ -73,9 +93,9 @@ namespace xvtf
 		/// @param[in] offset						Where in the buffer to start reading the data from.
 		/// @param[in] width						Width of the image in pixels.
 		/// @param[in] height						Height of the image in pixels.
-		/// @return void*							The decompressed RGBA8888 values as an array of size width * height.
+		/// @return RGBA5654*						The decompressed RGBA5654 values as an array of size width * height.
 		//----------------------------------------------------------------------------------------------------
-		void* DecompressDXT5(const void* buffer, addressable offset, uint16 width, uint16 height);
+		PixelFormats::RGBA5658* DecompressDXT5(const void* buffer, addressable offset, uint16 width, uint16 height);
 	}
 }
 

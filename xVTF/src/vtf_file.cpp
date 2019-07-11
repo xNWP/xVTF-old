@@ -22,6 +22,15 @@
 #include <string.h>
 #include <vector>
 
+namespace xvtf
+{
+	XVTFAPI float WhatVersion();
+	float WhatVersion()
+	{
+		return XVTF_VERSION;
+	}
+}
+
 class xvtf::VTFFile::__VTFFileImpl
 {
 public:
